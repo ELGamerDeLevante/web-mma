@@ -84,6 +84,15 @@ header span {
 }
 
 </style>
+  .viewers {
+  background: #111;
+  color: white;
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 8px;
+  font-weight: bold;
+  border: 1px solid #222;
+}
 </head>
 
 <body>
@@ -100,7 +109,9 @@ header span {
   <h1>La mejor acción de MMA en directo</h1>
   
 </div>
-
+<div class="viewers">
+  👁️ Espectadores: <span id="viewerCount">0</span>
+</div>
 <div class="fighters">
 
   <div class="card">
@@ -128,7 +139,7 @@ header span {
   </div>
 
 </div>
-</body>
+</body> 
 </html>
 
 <header>
@@ -156,6 +167,36 @@ header span {
 </div>
 
 </body>
+<script>
+
+let viewers = localStorage.getItem("viewers");
+
+if (!viewers) {
+  viewers = Math.floor(Math.random() * 50) + 20;
+}
+
+document.getElementById("viewerCount").innerText = viewers;
+
+// simulación dinámica
+setInterval(() => {
+
+  let current = parseInt(document.getElementById("viewerCount").innerText);
+
+  let random = Math.floor(Math.random() * 5);
+
+  if (Math.random() > 0.5) {
+    current += random;
+  } else {
+    current -= random;
+  }
+
+  if (current < 1) current = 1;
+
+  document.getElementById("viewerCount").innerText = current;
+
+}, 4000);
+
+</script>
  <script>
 const firebaseURL = "https://elgamerdelevante-chat-default-rtdb.europe-west1.firebasedatabase.app/";
 
