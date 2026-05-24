@@ -1,77 +1,136 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>EL GAMER DE LEVANTE</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #0b0b0b;
-      color: white;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ElGamerDeLevante</title>
 
-    header {
-      background: #111;
-      padding: 20px;
-      text-align: center;
-      font-size: 28px;
-      font-weight: bold;
-      color: red;
-    }
+<style>
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: black;
+  color: white;
+}
 
-    .container {
-      max-width: 1000px;
-      margin: auto;
-      padding: 20px;
-    }
+/* HEADER LOGO */
+header {
+  text-align: center;
+  padding: 20px;
+  font-size: 32px;
+  font-weight: bold;
+  letter-spacing: 2px;
+  color: white;
+}
 
-    .player {
-      width: 100%;
-      aspect-ratio: 16/9;
-      background: black;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border: 2px solid #222;
-      margin-bottom: 20px;
-      text-align: center;
-    }
+header span {
+  color: red;
+}
 
-    .matches {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 15px;
-    }
+/* HERO */
+.hero {
+  text-align: center;
+  padding: 40px 20px;
+  background: radial-gradient(circle, #111, black);
+}
 
-    .card {
-      background: #161616;
-      padding: 15px;
-      border-radius: 10px;
-      border: 1px solid #222;
-    }
+.hero h1 {
+  font-size: 40px;
+  margin-bottom: 10px;
+}
 
-    .live {
-      color: red;
-      font-weight: bold;
-    }
+.hero p {
+  color: #aaa;
+}
 
-    button {
-      margin-top: 10px;
-      padding: 10px;
-      width: 100%;
-      border: none;
-      cursor: pointer;
-      background: white;
-      color: black;
-      font-weight: bold;
-      border-radius: 8px;
-    }
-  </style>
+/* FIGHTERS */
+.fighters {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+  padding: 20px;
+}
+
+.card {
+  background: #111;
+  border: 1px solid #222;
+  border-radius: 12px;
+  padding: 15px;
+  text-align: center;
+  transition: 0.3s;
+}
+
+.card:hover {
+  transform: scale(1.05);
+  border-color: red;
+}
+
+.card h3 {
+  margin: 10px 0;
+  color: white;
+}
+
+.tag {
+  color: red;
+  font-size: 12px;
+}
+
+/* LIVE BAR */
+.livebar {
+  text-align: center;
+  padding: 10px;
+  background: red;
+  font-weight: bold;
+}
+
+</style>
 </head>
 
 <body>
+
+<header>
+  EL GAMER DE <span>LEVANTE</span>
+</header>
+
+<div class="livebar">
+  🔴 MMA LIVE HUB - UFC / MMA STREAMING
+</div>
+
+<div class="hero">
+  <h1>La mejor acción de MMA en directo</h1>
+  <p>Topuria • McGregor • Makhachev • Pereira</p>
+</div>
+
+<div class="fighters">
+
+  <div class="card">
+    <div class="tag">FEATHERWEIGHT</div>
+    <h3>Ilia Topuria</h3>
+    <p>España 🇪🇸</p>
+  </div>
+
+  <div class="card">
+    <div class="tag">LEGEND</div>
+    <h3>Conor McGregor</h3>
+    <p>Irlanda 🇮🇪</p>
+  </div>
+
+  <div class="card">
+    <div class="tag">LIGHTWEIGHT</div>
+    <h3>Islam Makhachev</h3>
+    <p>Rusia 🇷🇺</p>
+  </div>
+
+  <div class="card">
+    <div class="tag">MIDDLEWEIGHT</div>
+    <h3>Alex Pereira</h3>
+    <p>Brasil 🇧🇷</p>
+  </div>
+
+</div>
+
+</body>
+</html>
 
 <header>
   EL GAMER DE LEVANTE
