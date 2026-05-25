@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ElGamerDeLevante</title>
+<title>ElGamerDeLevante | MMA Live</title>
 
 <style>
 body {
@@ -190,6 +190,12 @@ function loadMessages() {
     .then(res => res.json())
     .then(data => {
       const box = document.getElementById("messages");
+
+      if (!data) {
+        box.innerHTML = "<p>No hay mensajes aún</p>";
+        return;
+      }
+
       box.innerHTML = "";
 
       for (let id in data) {
