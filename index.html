@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>EL GAMER DE LEVANTE</title>
+<title>EL GAMER DE LEVANTE | MMA LIVE</title>
 
 <style>
 body {
@@ -29,26 +29,15 @@ header {
   font-weight: bold;
 }
 
-/* BUTTONS */
+/* CATEGORÍAS (texto simple) */
 .fighters {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 10px;
   padding: 20px;
-}
-
-.card {
-  background: #111;
-  color: white;
-  padding: 15px;
-  border-radius: 10px;
-  border: 1px solid #222;
   text-align: center;
-font-weight: bold;
   font-size: 16px;
+  color: #ccc;
+  line-height: 1.8;
+  font-weight: bold;
 }
-
-
 
 /* CHAT */
 .chat {
@@ -59,16 +48,39 @@ font-weight: bold;
 }
 
 #messages {
-  height: 200px;
+  height: 220px;
   overflow-y: auto;
   background: black;
   padding: 10px;
   margin-bottom: 10px;
   border: 1px solid #222;
+  border-radius: 8px;
 }
 
+/* input chat */
 input {
-  padding: 5px;
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #333;
+  background: #000;
+  color: white;
+}
+
+/* enviar */
+button {
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: none;
+  background: red;
+  color: white;
+  cursor: pointer;
+}
+
+/* contador */
+.counter {
+  margin-bottom: 10px;
+  color: #aaa;
+  font-size: 14px;
 }
 
 /* LEGAL */
@@ -108,35 +120,30 @@ input {
   EL GAMER DE <span style="color:red;">LEVANTE</span>
 </header>
 
-<div class="livebar">🔴 EVENTOS DE ARTES MARCIALES MIXTAS EN DIRECTO / LIVE MMA EVENTS</div>
+<div class="livebar">
+  🔴 EL GAMER DE LEVANTE / MMA LIVE
+</div>
 
 <!-- CATEGORÍAS -->
 <div class="fighters">
-
-  <div class="card">
-    🥊 ARTES MARCIALES MIXTAS
-  </div>
-
-  <div class="card">
-    🥊 BOXEO
-  </div>
-
-  <div class="card">
-    🤼 LUCHA
-  </div>
-
-  <div class="card">
-    🔥 EVENTOS
-  </div>
-
+  ARTES MARCIALES MIXTAS / BOXEO / LUCHA / EVENTOS
 </div>
+
 <!-- CHAT -->
 <div class="chat">
-  <h3>Chat en vivo</h3>
+  <h3>💬 Chat en vivo</h3>
+
+  <div class="counter">
+    👥 Conectados: <span id="onlineCount">1</span>
+  </div>
+
   <div id="messages"></div>
-  <input id="name" placeholder="Nombre">
-  <input id="message" placeholder="Mensaje">
-  <button onclick="sendMessage()">Enviar</button>
+
+  <div style="display:flex; gap:5px;">
+    <input id="name" placeholder="Nombre" style="flex:1;">
+    <input id="message" placeholder="Mensaje" style="flex:2;">
+    <button onclick="sendMessage()">Enviar</button>
+  </div>
 </div>
 
 <!-- LEGAL -->
@@ -146,15 +153,14 @@ input {
   <div class="modal-box">
     <h2 style="color:red;">Aviso Legal</h2>
     <p>Este sitio no aloja contenido, solo chat y enlaces externos.</p>
-    <button onclick="closeLegal()" style="background:red;color:white;padding:10px;border:none;border-radius:6px;">
-      Cerrar
-    </button>
+    <button onclick="closeLegal()">Cerrar</button>
   </div>
 </div>
 
 <script>
 const firebaseURL = "https://elgamerdelevante-chat-default-rtdb.europe-west1.firebasedatabase.app/";
 
+/* CHAT */
 function loadMessages() {
   fetch(firebaseURL + "/messages.json")
     .then(res => res.json())
@@ -165,7 +171,11 @@ function loadMessages() {
       if (!data) return;
 
       Object.values(data).forEach(m => {
-        box.innerHTML += `<p><b style="color:red">${m.name}:</b> ${m.text}</p>`;
+        box.innerHTML += `
+          <div style="margin-bottom:6px;">
+            <b style="color:red">${m.name}:</b> ${m.text}
+          </div>
+        `;
       });
 
       box.scrollTop = box.scrollHeight;
@@ -186,6 +196,18 @@ function sendMessage() {
   document.getElementById("message").value = "";
 }
 
+/* CONTADOR (simulado estable) */
+let base = 12;
+
+function updateCounter() {
+  const variation = Math.floor(Math.random() * 5);
+  document.getElementById("onlineCount").innerText = base + variation;
+}
+
+setInterval(updateCounter, 4000);
+updateCounter();
+
+/* INIT */
 setInterval(loadMessages, 2000);
 loadMessages();
 
