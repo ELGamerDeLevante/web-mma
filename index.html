@@ -29,6 +29,23 @@ header {
   font-weight: bold;
 }
 
+/* PLAYER (YOUTUBE) */
+.player {
+  width: calc(100% - 40px);
+  max-width: 500px;
+  margin: 15px auto;
+  display: flex;
+  justify-content: center;
+}
+
+.player iframe {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border: 2px solid red;
+  border-radius: 10px;
+  background: black;
+}
+
 /* CATEGORÍAS */
 .fighters {
   padding: 20px;
@@ -77,12 +94,11 @@ input {
   margin-top: 8px;
 }
 
-/* mensaje ocupa todo */
 #message {
   flex: 1;
 }
 
-/* botón enviar */
+/* botón */
 button {
   padding: 8px 12px;
   border-radius: 6px;
@@ -128,9 +144,9 @@ button {
   border-radius: 10px;
 }
 
-/* móvil */
+/* móvil ajuste */
 @media (max-width: 600px) {
-  .chat {
+  .chat, .player {
     width: calc(100% - 20px);
     margin: 10px auto;
   }
@@ -148,16 +164,17 @@ button {
 <div class="livebar">
   🔴 EL GAMER DE LEVANTE / MMA LIVE
 </div>
+
 <!-- PLAYER YOUTUBE -->
-<div class="player" style="width:100%; display:flex; justify-content:center; padding:10px;">
+<div class="player">
   <iframe
     src="https://www.youtube.com/embed/Im6zFFXNW7k"
-    style="width:100%; max-width:900px; height:450px; border:2px solid red; border-radius:10px;"
+    allowfullscreen
     frameborder="0"
-    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-    allowfullscreen>
+    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture">
   </iframe>
 </div>
+
 <!-- CATEGORÍAS -->
 <div class="fighters">
   MMA / BOXEO / LUCHA / EVENTOS
@@ -173,7 +190,6 @@ button {
 
   <div id="messages"></div>
 
-  <!-- INPUTS -->
   <input id="name" placeholder="Nombre">
 
   <div class="msg-row">
