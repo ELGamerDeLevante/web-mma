@@ -143,31 +143,57 @@ input {
 <script>
 const firebaseURL = "https://elgamerdelevante-chat-default-rtdb.europe-west1.firebasedatabase.app/";
 
+function getColor(name) {
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) {
+    hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  const color = (hash & 0x00ffffff).toString(16).toUpperCase();
+  return "#" + "00000".substring(0, 6 - color.length) + color;
+}
+
 function loadMessages() {
   fetch(firebaseURL + "/messages.json")
     .then(res => res.json())
     .then(data => {
       const box = document.getElementById("messages");
+
+      if (!data) {
+        box.innerHTML = "<p style='color:#777'>No hay mensajes aún</p>";
+        return;
+      }
+
       box.innerHTML = "";
 
-      if (!data) return;
-
       Object.values(data).forEach(m => {
-        const color = "#" + ((Math.random() * 0xffffff) | 0).toString(16);
+        const color = getColor(m.name);
 
         box.innerHTML += `
           <div style="
-            margin:5px 0;
-            padding:6px;
+            margin:4px 0;
+            padding:6px 8px;
             background:#111;
             border-left:3px solid red;
             border-radius:6px;
+            display:flex;
+            gap:6px;
+            align-items:center;
           ">
-            <span style="color:${color}; font-weight:bold">${m.name}</span>
-            <span>: ${m.text}</span>
+            <span style="
+              color:${color};
+              font-weight:bold;
+            ">${m.name}</span>
+
+            <span style="color:#fff;">${m.text}</span>
           </div>
         `;
       });
+
+      box.scrollTop = box.scrollHeight;
+    })
+    .catch(() => {
+      document.getElementById("messages").innerHTML =
+        "<p style='color:red'>Error cargando chat</p>";
     });
 }
 
