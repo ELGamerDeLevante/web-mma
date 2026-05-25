@@ -153,7 +153,20 @@ function loadMessages() {
     if (!data) return;
 
     Object.values(data).forEach(m => {
-      box.innerHTML += `<p><b style="color:red">${m.name}:</b> ${m.text}</p>`;
+      const color = "#" + ((Math.random()*0xffffff)|0).toString(16);
+
+box.innerHTML += `
+  <div style="
+    margin:5px 0;
+    padding:6px;
+    background:#111;
+    border-left:3px solid red;
+    border-radius:6px;
+  ">
+    <span style="color:${color}; font-weight:bold">${m.name}</span>
+    <span>: ${m.text}</span>
+  </div>
+`;
     });
   });
 }
