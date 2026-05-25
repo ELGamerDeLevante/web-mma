@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,57 +8,17 @@
 <style>
 body {
   margin: 0;
-  font-family: Arial, sans-serif;
+  font-family: Arial;
   background: black;
   color: white;
 }
 
-/* BANNER */
-.hero-banner {
-  position: relative;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: linear-gradient(to bottom, #111, black);
-  padding: 30px;
-  border-bottom: 2px solid #222;
-}
-
-.center-content {
+/* HEADER */
+header {
   text-align: center;
-}
-
-.center-content h1 {
-  font-size: 42px;
-  margin-top: 20px;
-  color: white;
-  letter-spacing: 3px;
-}
-
-.center-content p {
-  color: red;
+  padding: 20px;
+  font-size: 30px;
   font-weight: bold;
-}
-
-.octagon {
-  width: 140px;
-  height: 140px;
-  background: #111;
-  border: 4px solid red;
-  clip-path: polygon(
-    30% 0%, 70% 0%,
-    100% 30%, 100% 70%,
-    70% 100%, 30% 100%,
-    0% 70%, 0% 30%
-  );
-  margin: auto;
-  box-shadow: 0 0 25px red;
-}
-
-.fighter img {
-  height: 260px;
-  object-fit: contain;
-  filter: drop-shadow(0 0 10px red);
 }
 
 /* LIVE BAR */
@@ -73,36 +32,22 @@ body {
 /* CARDS */
 .fighters {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 15px;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px;
   padding: 20px;
 }
 
 .card {
   background: #111;
-  border: 1px solid #222;
-  border-radius: 12px;
   padding: 15px;
+  border-radius: 10px;
   text-align: center;
-}
-
-.card:hover {
-  border-color: red;
-  transform: scale(1.05);
-  transition: 0.3s;
-}
-
-.tag {
-  color: red;
-  font-size: 12px;
+  border: 1px solid #222;
 }
 
 /* CHAT */
-.container {
-  padding: 20px;
-}
-
 .chat {
+  margin: 20px;
   background: #111;
   padding: 15px;
   border-radius: 10px;
@@ -110,7 +55,7 @@ body {
 
 #messages {
   height: 200px;
-  overflow: auto;
+  overflow-y: auto;
   background: black;
   padding: 10px;
   margin-bottom: 10px;
@@ -120,96 +65,97 @@ body {
 input {
   padding: 5px;
 }
+
+/* BOTÓN LEGAL */
+.legal-btn {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: red;
+  border: none;
+  color: white;
+  padding: 10px 15px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+/* MODAL */
+#legalModal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.9);
+}
+
+.modal-box {
+  background: #111;
+  max-width: 600px;
+  margin: 80px auto;
+  padding: 20px;
+  border-radius: 10px;
+}
 </style>
 
 </head>
 
 <body>
 
-<!-- BANNER -->
-<div style="text-align:center; padding:20px; font-size:32px; font-weight:bold;">
+<header>
   EL GAMER DE <span style="color:red;">LEVANTE</span>
-</div>
+</header>
 
+<div class="livebar">🔴 MMA LIVE</div>
 
-<!-- LIVE -->
-<div class="livebar">
-  🔴 MMA LIVE - UFC / MMA STREAMING
-</div>
-
-<!-- CANALES -->
 <div class="fighters">
-
-  <div class="card">
-    <div class="tag">CANAL</div>
-    <h3>UFC</h3>
-    <p>Ultimate Fighting Championship</p>
-  </div>
-
-  <div class="card">
-    <div class="tag">CANAL</div>
-    <h3>PFL</h3>
-    <p>Professional Fighters League</p>
-  </div>
-
-  <div class="card">
-    <div class="tag">CANAL</div>
-    <h3>WOW</h3>
-    <p>Women of Wrestling</p>
-  </div>
-
-  <div class="card">
-    <div class="tag">CANAL</div>
-    <h3>WAR</h3>
-    <p>Combat Sports</p>
-  </div>
-
+  <div class="card">UFC</div>
+  <div class="card">PFL</div>
+  <div class="card">WOW</div>
+  <div class="card">WAR</div>
 </div>
 
-<!-- CHAT -->
-<div class="container">
-
-  <div class="chat">
-    <h3>💬 Chat en vivo</h3>
-
-    <div id="messages"></div>
-
-    <input id="name" placeholder="Nombre">
-    <input id="message" placeholder="Mensaje">
-    <button onclick="sendMessage()">Enviar</button>
-  </div>
-
+<div class="chat">
+  <h3>Chat en vivo</h3>
+  <div id="messages"></div>
+  <input id="name" placeholder="Nombre">
+  <input id="message" placeholder="Mensaje">
+  <button onclick="sendMessage()">Enviar</button>
 </div>
 
-<!-- SCRIPT FIREBASE -->
+<!-- BOTÓN LEGAL -->
+<button class="legal-btn" onclick="openLegal()">Aviso Legal</button>
+
+<!-- MODAL -->
+<div id="legalModal">
+  <div class="modal-box">
+    <h2 style="color:red;">Aviso Legal</h2>
+
+    <p>
+      Este sitio no aloja contenido. Solo muestra enlaces externos.
+    </p>
+
+    <button onclick="closeLegal()" style="background:red;color:white;padding:10px;border:none;border-radius:6px;">
+      Cerrar
+    </button>
+  </div>
+</div>
+
+<!-- JS CHAT -->
 <script>
 const firebaseURL = "https://elgamerdelevante-chat-default-rtdb.europe-west1.firebasedatabase.app/";
 
 function loadMessages() {
   fetch(firebaseURL + "/messages.json")
-    .then(res => res.json())
-    .then(data => {
-      const box = document.getElementById("messages");
+  .then(r => r.json())
+  .then(data => {
+    const box = document.getElementById("messages");
+    box.innerHTML = "";
 
-      if (!data) {
-        box.innerHTML = "<p style='color:#aaa'>No hay mensajes aún</p>";
-        return;
-      }
+    if (!data) return;
 
-      box.innerHTML = "";
-
-      Object.keys(data).forEach(id => {
-        const msg = data[id];
-
-        box.innerHTML += `
-          <p><b style="color:red">${msg.name}:</b> ${msg.text}</p>
-        `;
-      });
-    })
-    .catch(() => {
-      document.getElementById("messages").innerHTML =
-        "<p style='color:red'>Error cargando chat</p>";
+    Object.values(data).forEach(m => {
+      box.innerHTML += `<p><b style="color:red">${m.name}:</b> ${m.text}</p>`;
     });
+  });
 }
 
 function sendMessage() {
@@ -220,10 +166,7 @@ function sendMessage() {
 
   fetch(firebaseURL + "/messages.json", {
     method: "POST",
-    body: JSON.stringify({
-      name: name,
-      text: message
-    })
+    body: JSON.stringify({ name, text: message })
   });
 
   document.getElementById("message").value = "";
@@ -231,6 +174,15 @@ function sendMessage() {
 
 setInterval(loadMessages, 2000);
 loadMessages();
+
+/* LEGAL */
+function openLegal() {
+  document.getElementById("legalModal").style.display = "block";
+}
+
+function closeLegal() {
+  document.getElementById("legalModal").style.display = "none";
+}
 </script>
 
 </body>
