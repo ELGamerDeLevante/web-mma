@@ -56,7 +56,7 @@ header {
   font-weight: bold;
 }
 
-/* LEGAL (entre categorías y chat) */
+/* LEGAL */
 .legal-center {
   text-align: center;
   margin: 10px 0;
@@ -124,13 +124,6 @@ button {
   white-space: nowrap;
 }
 
-/* contador */
-.counter {
-  margin-bottom: 10px;
-  color: #aaa;
-  font-size: 14px;
-}
-
 /* MODAL */
 #legalModal {
   display: none;
@@ -183,7 +176,7 @@ button {
   MMA / BOXEO / LUCHA / EVENTOS
 </div>
 
-<!-- AVISO LEGAL (AQUÍ ES DONDE LO QUERÍAS) -->
+<!-- AVISO LEGAL -->
 <div class="legal-center">
   <button onclick="openLegal()">Aviso Legal</button>
 </div>
@@ -191,10 +184,6 @@ button {
 <!-- CHAT -->
 <div class="chat">
   <h3>💬 Chat en vivo</h3>
-
-  <div class="counter">
-    👥 Conectados: <span id="onlineCount">1</span>
-  </div>
 
   <div id="messages"></div>
 
@@ -253,17 +242,6 @@ function sendMessage() {
 
   document.getElementById("message").value = "";
 }
-
-/* contador simulado */
-let base = 12;
-
-function updateCounter() {
-  const variation = Math.floor(Math.random() * 5);
-  document.getElementById("onlineCount").innerText = base + variation;
-}
-
-setInterval(updateCounter, 4000);
-updateCounter();
 
 /* init */
 setInterval(loadMessages, 2000);
