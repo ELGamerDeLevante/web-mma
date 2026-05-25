@@ -29,7 +29,7 @@ header {
   font-weight: bold;
 }
 
-/* BOTONES */
+/* BUTTONS */
 .fighters {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -52,13 +52,20 @@ button.card:hover {
 }
 
 /* PLAYER */
-#player {
-  width: 90%;
+.player {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding: 10px 20px;
+}
+
+iframe {
+  width: 100%;
+  max-width: 900px;
   height: 450px;
-  display: block;
-  margin: 20px auto;
-  border: 1px solid #222;
+  border: 2px solid red;
   border-radius: 10px;
+  background: black;
 }
 
 /* CHAT */
@@ -122,27 +129,16 @@ input {
 <div class="livebar">🔴 MMA LIVE</div>
 
 <!-- REPRODUCTOR -->
-<iframe id="player" src="" allowfullscreen></iframe>
+<div class="player">
+  <iframe id="player" src="" allowfullscreen></iframe>
+</div>
 
-<!-- BOTONES CANALES -->
+<!-- BOTONES -->
 <div class="fighters">
-
-  <button class="card" onclick="loadStream('https://www.youtube.com/embed/live_stream?channel=UFC')">
-    UFC LIVE
-  </button>
-
-  <button class="card" onclick="loadStream('https://www.youtube.com/embed/live_stream?channel=PFL')">
-    PFL LIVE
-  </button>
-
-  <button class="card" onclick="loadStream('https://www.youtube.com/embed/live_stream?channel=WOW')">
-    WOW LIVE
-  </button>
-
-  <button class="card" onclick="loadStream('https://www.youtube.com/embed/live_stream?channel=WAR')">
-    WAR LIVE
-  </button>
-
+  <button class="card" onclick="loadStream('UFC')">UFC</button>
+  <button class="card" onclick="loadStream('PFL')">PFL</button>
+  <button class="card" onclick="loadStream('WOW')">WOW</button>
+  <button class="card" onclick="loadStream('WAR')">WAR</button>
 </div>
 
 <!-- CHAT -->
@@ -154,14 +150,13 @@ input {
   <button onclick="sendMessage()">Enviar</button>
 </div>
 
-<!-- BOTÓN LEGAL -->
+<!-- LEGAL -->
 <button class="legal-btn" onclick="openLegal()">Aviso Legal</button>
 
-<!-- MODAL -->
 <div id="legalModal">
   <div class="modal-box">
     <h2 style="color:red;">Aviso Legal</h2>
-    <p>Este sitio no aloja contenido. Solo muestra enlaces externos.</p>
+    <p>Este sitio no aloja contenido, solo muestra reproductor interno.</p>
     <button onclick="closeLegal()" style="background:red;color:white;padding:10px;border:none;border-radius:6px;">
       Cerrar
     </button>
@@ -169,22 +164,20 @@ input {
 </div>
 
 <script>
-const firebaseURL = "https://elgamerdelevante-chat-default-rtdb.europe-west1.firebasedatabase.app/";
+/* STREAMS (SIN YOUTUBE) */
+const streams = {
+  UFC: "https://example.com/stream1",
+  PFL: "https://example.com/stream2",
+  WOW: "https://example.com/stream3",
+  WAR: "https://example.com/stream4"
+};
 
-/* PLAYER */
-function loadStream(url) {
-  document.getElementById("player").src = url;
+function loadStream(channel) {
+  document.getElementById("player").src = streams[channel] || "";
 }
 
 /* CHAT */
-function getColor(name) {
-  let hash = 0;
-  for (let i = 0; i < name.length; i++) {
-    hash = name.charCodeAt(i) + ((hash << 5) - hash);
-  }
-  const color = (hash & 0x00ffffff).toString(16).toUpperCase();
-  return "#" + "00000".substring(0, 6 - color.length) + color;
-}
+const firebaseURL = "https://elgamerdelevante-chat-default-rtdb.europe-west1.firebasedatabase.app/";
 
 function loadMessages() {
   fetch(firebaseURL + "/messages.json")
@@ -196,14 +189,7 @@ function loadMessages() {
       if (!data) return;
 
       Object.values(data).forEach(m => {
-        const color = getColor(m.name);
-
-        box.innerHTML += `
-          <div style="margin:4px 0;padding:6px;background:#111;border-left:3px solid red;">
-            <span style="color:${color};font-weight:bold">${m.name}</span>
-            <span>: ${m.text}</span>
-          </div>
-        `;
+        box.innerHTML += `<p><b style="color:red">${m.name}:</b> ${m.text}</p>`;
       });
 
       box.scrollTop = box.scrollHeight;
