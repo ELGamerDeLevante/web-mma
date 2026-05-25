@@ -45,7 +45,6 @@ header {
   background: #111;
   padding: 15px;
   border-radius: 10px;
-
   width: calc(100% - 40px);
   max-width: 500px;
   box-sizing: border-box;
@@ -61,16 +60,29 @@ header {
   border-radius: 8px;
 }
 
-/* input */
+/* inputs */
 input {
   padding: 8px;
   border-radius: 6px;
   border: 1px solid #333;
   background: #000;
   color: white;
+  box-sizing: border-box;
 }
 
-/* botón */
+/* fila mensaje + botón */
+.msg-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+/* mensaje ocupa todo */
+#message {
+  flex: 1;
+}
+
+/* botón enviar */
 button {
   padding: 8px 12px;
   border-radius: 6px;
@@ -78,6 +90,7 @@ button {
   background: red;
   color: white;
   cursor: pointer;
+  white-space: nowrap;
 }
 
 /* contador */
@@ -115,7 +128,7 @@ button {
   border-radius: 10px;
 }
 
-/* móvil ajuste */
+/* móvil */
 @media (max-width: 600px) {
   .chat {
     width: calc(100% - 20px);
@@ -151,9 +164,11 @@ button {
 
   <div id="messages"></div>
 
-  <div style="display:flex; gap:5px;">
-    <input id="name" placeholder="Nombre" style="flex:1;">
-    <input id="message" placeholder="Mensaje" style="flex:2;">
+  <!-- INPUTS -->
+  <input id="name" placeholder="Nombre">
+
+  <div class="msg-row">
+    <input id="message" placeholder="Mensaje">
     <button onclick="sendMessage()">Enviar</button>
   </div>
 </div>
@@ -185,8 +200,7 @@ function loadMessages() {
       Object.values(data).forEach(m => {
         box.innerHTML += `
           <div style="margin-bottom:10px;">
-            <div style="color:red; font-weight:bold;">${m.name}</div>
-            <div style="margin-left:5px;">${m.text}</div>
+            <b style="color:red">${m.name}:</b> ${m.text}
           </div>
         `;
       });
