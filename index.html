@@ -17,6 +17,7 @@ body {
   color: white;
 }
 
+/* HEADER */
 header {
   text-align: center;
   padding: 20px;
@@ -24,6 +25,7 @@ header {
   font-weight: bold;
 }
 
+/* LIVE BAR */
 .livebar {
   text-align: center;
   padding: 10px;
@@ -31,6 +33,33 @@ header {
   font-weight: bold;
 }
 
+/* TEXTO INFO */
+.info-text {
+  text-align: center;
+  padding: 15px;
+  color: #aaa;
+}
+
+/* PANEL INFO */
+.fighters {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px;
+  padding: 20px;
+}
+
+.card {
+  background: #111;
+  color: white;
+  padding: 15px;
+  border-radius: 10px;
+  border: 1px solid #222;
+  text-align: center;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+/* CHAT */
 .chat {
   margin: 20px auto;
   background: #111;
@@ -41,6 +70,16 @@ header {
   box-sizing: border-box;
 }
 
+/* ESTADÍSTICAS */
+.chat-stats {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  color: #aaa;
+  margin-bottom: 10px;
+}
+
+/* MENSAJES */
 #messages {
   height: 220px;
   overflow-y: auto;
@@ -51,6 +90,7 @@ header {
   border-radius: 8px;
 }
 
+/* INPUTS */
 input {
   padding: 8px;
   border-radius: 6px;
@@ -58,8 +98,10 @@ input {
   background: #000;
   color: white;
   box-sizing: border-box;
+  width: 100%;
 }
 
+/* FILA MENSAJE */
 .msg-row {
   display: flex;
   gap: 8px;
@@ -70,6 +112,7 @@ input {
   flex: 1;
 }
 
+/* BOTÓN */
 button {
   padding: 8px 12px;
   border-radius: 6px;
@@ -77,14 +120,21 @@ button {
   background: red;
   color: white;
   cursor: pointer;
+  white-space: nowrap;
 }
 
-.chat-stats {
-  display: flex;
-  justify-content: space-between;
-  font-size: 14px;
-  color: #aaa;
-  margin-bottom: 10px;
+/* RESPONSIVE */
+@media (max-width: 600px) {
+
+  .chat {
+    width: calc(100% - 20px);
+    margin: 10px auto;
+  }
+
+  .fighters {
+    grid-template-columns: 1fr;
+  }
+
 }
 </style>
 </head>
@@ -99,9 +149,32 @@ button {
   🔴 EL GAMER DE LEVANTE / MMA LIVE
 </div>
 
-<div style="text-align:center; padding:15px; color:#aaa;">
-  Próximos eventos de MMA en directo 
+<div class="info-text">
+  Próximos eventos de MMA en directo
 </div>
+
+<!-- PANEL MMA -->
+<div class="fighters">
+
+  <div class="card">
+    🥊 ARTES MARCIALES MIXTAS
+  </div>
+
+  <div class="card">
+    🥊 BOXEO
+  </div>
+
+  <div class="card">
+    🤼 LUCHA
+  </div>
+
+  <div class="card">
+    🔥 EVENTOS
+  </div>
+
+</div>
+
+<!-- CHAT -->
 <div class="chat">
 
   <h3>💬 Chat en vivo</h3>
@@ -123,42 +196,65 @@ button {
 </div>
 
 <script>
+
 /* =========================
-   🔥 FIREBASE INIT
+   🔥 FIREBASE
 ========================= */
+
 const firebaseConfig = {
-  databaseURL: "https://elgamerdelevante-chat-default-rtdb.europe-west1.firebasedatabase.app/"
+  databaseURL:
+    "https://elgamerdelevante-chat-default-rtdb.europe-west1.firebasedatabase.app/"
 };
 
 firebase.initializeApp(firebaseConfig);
+
 const db = firebase.database();
 
-/* ID único */
-const userId = Math.random().toString(36).substr(2, 9);
+/* ID USUARIO */
+
+const userId =
+  Math.random().toString(36).substr(2, 9);
 
 /* =========================
-   💬 CHAT OPTIMIZADO
+   💬 CHAT
 ========================= */
+
 const messagesRef = db.ref("messages");
 
-/* SOLO NUEVOS MENSAJES (NO RECARGA TODO) */
-messagesRef.on("child_added", (snap) => {
-  const m = snap.val();
-  const box = document.getElementById("messages");
+/* NUEVOS MENSAJES */
 
-  const div = document.createElement("div");
+messagesRef.on("child_added", (snap) => {
+
+  const m = snap.val();
+
+  const box =
+    document.getElementById("messages");
+
+  const div =
+    document.createElement("div");
+
   div.style.marginBottom = "8px";
-  div.innerHTML = `<b style="color:red">${m.name}:</b> ${m.text}`;
+
+  div.innerHTML =
+    `<b style="color:red">${m.name}:</b> ${m.text}`;
 
   box.appendChild(div);
+
   box.scrollTop = box.scrollHeight;
+
 });
 
-function sendMessage() {
-  const name = document.getElementById("name").value;
-  const message = document.getElementById("message").value;
+/* ENVIAR */
 
-  if (!name || !message) return;
+function sendMessage() {
+
+  const name =
+    document.getElementById("name").value;
+
+  const message =
+    document.getElementById("message").value;
+
+  if (!name.trim() || !message.trim()) return;
 
   messagesRef.push({
     name,
@@ -167,44 +263,73 @@ function sendMessage() {
   });
 
   document.getElementById("message").value = "";
+
 }
 
-/* =========================
-   👀 ESPECTADORES REALES
-========================= */
-const viewersRef = db.ref("viewers");
+/* ENTER ENVÍA */
 
-viewersRef.child(userId).set(true);
-viewersRef.child(userId).onDisconnect().remove();
+document.getElementById("message")
+.addEventListener("keypress", function(e) {
 
-viewersRef.on("value", (snap) => {
-  const data = snap.val();
-  document.getElementById("viewers").innerText =
-    data ? Object.keys(data).length : 0;
+  if (e.key === "Enter") {
+    sendMessage();
+  }
+
 });
 
 /* =========================
-   👥 MIEMBROS REALES
+   👀 ESPECTADORES
 ========================= */
+
+const viewersRef = db.ref("viewers");
+
+viewersRef.child(userId).set(true);
+
+viewersRef.child(userId)
+.onDisconnect()
+.remove();
+
+viewersRef.on("value", (snap) => {
+
+  const data = snap.val();
+
+  document.getElementById("viewers").innerText =
+    data ? Object.keys(data).length : 0;
+
+});
+
+/* =========================
+   👥 MIEMBROS
+========================= */
+
 const membersRef = db.ref("members");
 
 let username = "";
 
-document.getElementById("name").addEventListener("change", (e) => {
+document.getElementById("name")
+.addEventListener("change", (e) => {
+
   username = e.target.value;
 
   membersRef.child(userId).set({
     name: username
   });
+
 });
 
-membersRef.child(userId).onDisconnect().remove();
+membersRef.child(userId)
+.onDisconnect()
+.remove();
 
 membersRef.on("value", (snap) => {
+
   const data = snap.val();
+
   document.getElementById("membersCount").innerText =
     data ? Object.keys(data).length : 0;
+
 });
+
 </script>
 
 </body>
