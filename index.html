@@ -127,7 +127,6 @@ button {
 
 /* RESPONSIVE */
 @media (max-width: 600px) {
-
   .chat {
     width: calc(100% - 20px);
     margin: 10px auto;
@@ -136,7 +135,40 @@ button {
   .fighters {
     grid-template-columns: 1fr;
   }
+}
 
+/* =========================
+   🔴 AVISO LEGAL
+========================= */
+
+.legal-footer {
+  text-align: center;
+  padding: 25px 0;
+}
+
+.legal-footer button {
+  background: red;
+  border: none;
+  color: white;
+  padding: 10px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+#legalModal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.9);
+}
+
+.modal-box {
+  background: #111;
+  max-width: 500px;
+  margin: 80px auto;
+  padding: 20px;
+  border-radius: 10px;
 }
 </style>
 </head>
@@ -184,6 +216,23 @@ button {
 
 </div>
 
+<!-- 🔴 BOTÓN AVISO LEGAL ABAJO -->
+<div class="legal-footer">
+  <button onclick="openLegal()">Aviso Legal</button>
+</div>
+
+<!-- MODAL -->
+<div id="legalModal">
+  <div class="modal-box">
+    <h2 style="color:red;">Aviso Legal</h2>
+    <p>
+      Esta página es un proyecto informativo y de entretenimiento.<br>
+      No aloja ni retransmite contenido propio.
+    </p>
+    <button onclick="closeLegal()">Cerrar</button>
+  </div>
+</div>
+
 <script>
 
 /* =========================
@@ -199,49 +248,27 @@ firebase.initializeApp(firebaseConfig);
 
 const db = firebase.database();
 
-/* ID USUARIO */
-
 const userId =
   Math.random().toString(36).substr(2, 9);
 
-/* =========================
-   💬 CHAT
-========================= */
-
+/* CHAT */
 const messagesRef = db.ref("messages");
 
-/* NUEVOS MENSAJES */
-
 messagesRef.on("child_added", (snap) => {
-
   const m = snap.val();
+  const box = document.getElementById("messages");
 
-  const box =
-    document.getElementById("messages");
-
-  const div =
-    document.createElement("div");
-
+  const div = document.createElement("div");
   div.style.marginBottom = "8px";
-
-  div.innerHTML =
-    `<b style="color:red">${m.name}:</b> ${m.text}`;
+  div.innerHTML = `<b style="color:red">${m.name}:</b> ${m.text}`;
 
   box.appendChild(div);
-
   box.scrollTop = box.scrollHeight;
-
 });
 
-/* ENVIAR */
-
 function sendMessage() {
-
-  const name =
-    document.getElementById("name").value;
-
-  const message =
-    document.getElementById("message").value;
+  const name = document.getElementById("name").value;
+  const message = document.getElementById("message").value;
 
   if (!name.trim() || !message.trim()) return;
 
@@ -252,72 +279,56 @@ function sendMessage() {
   });
 
   document.getElementById("message").value = "";
-
 }
 
-/* ENTER ENVÍA */
-
+/* ENTER */
 document.getElementById("message")
 .addEventListener("keypress", function(e) {
-
-  if (e.key === "Enter") {
-    sendMessage();
-  }
-
+  if (e.key === "Enter") sendMessage();
 });
 
-/* =========================
-   👀 ESPECTADORES
-========================= */
-
+/* VIEWERS */
 const viewersRef = db.ref("viewers");
 
 viewersRef.child(userId).set(true);
-
-viewersRef.child(userId)
-.onDisconnect()
-.remove();
+viewersRef.child(userId).onDisconnect().remove();
 
 viewersRef.on("value", (snap) => {
-
   const data = snap.val();
-
   document.getElementById("viewers").innerText =
     data ? Object.keys(data).length : 0;
-
 });
 
-/* =========================
-   👥 MIEMBROS
-========================= */
-
+/* MEMBERS */
 const membersRef = db.ref("members");
 
 let username = "";
 
 document.getElementById("name")
 .addEventListener("change", (e) => {
-
   username = e.target.value;
 
   membersRef.child(userId).set({
     name: username
   });
-
 });
 
-membersRef.child(userId)
-.onDisconnect()
-.remove();
+membersRef.child(userId).onDisconnect().remove();
 
 membersRef.on("value", (snap) => {
-
   const data = snap.val();
-
   document.getElementById("membersCount").innerText =
     data ? Object.keys(data).length : 0;
-
 });
+
+/* LEGAL */
+function openLegal() {
+  document.getElementById("legalModal").style.display = "block";
+}
+
+function closeLegal() {
+  document.getElementById("legalModal").style.display = "none";
+}
 
 </script>
 
