@@ -5,6 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>EL GAMER DE LEVANTE | MMA LIVE</title>
 
+<!-- FIREBASE -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+
 <style>
 body {
   margin: 0;
@@ -13,7 +17,6 @@ body {
   color: white;
 }
 
-/* HEADER */
 header {
   text-align: center;
   padding: 20px;
@@ -21,7 +24,6 @@ header {
   font-weight: bold;
 }
 
-/* LIVE BAR */
 .livebar {
   text-align: center;
   padding: 10px;
@@ -29,7 +31,6 @@ header {
   font-weight: bold;
 }
 
-/* PLAYER */
 .player {
   width: calc(100% - 40px);
   max-width: 500px;
@@ -38,40 +39,6 @@ header {
   justify-content: center;
 }
 
-.player iframe {
-  width: 100%;
-  aspect-ratio: 16 / 9;
-  border: 2px solid red;
-  border-radius: 10px;
-  background: black;
-}
-
-/* CATEGORÍAS */
-.fighters {
-  padding: 20px;
-  text-align: center;
-  font-size: 16px;
-  color: #ccc;
-  line-height: 1.8;
-  font-weight: bold;
-}
-
-/* LEGAL */
-.legal-center {
-  text-align: center;
-  margin: 10px 0;
-}
-
-.legal-center button {
-  background: red;
-  border: none;
-  color: white;
-  padding: 8px 14px;
-  border-radius: 8px;
-  cursor: pointer;
-}
-
-/* CHAT */
 .chat {
   margin: 20px auto;
   background: #111;
@@ -79,7 +46,6 @@ header {
   border-radius: 10px;
   width: calc(100% - 40px);
   max-width: 500px;
-  box-sizing: border-box;
 }
 
 #messages {
@@ -87,22 +53,18 @@ header {
   overflow-y: auto;
   background: black;
   padding: 10px;
-  margin-bottom: 10px;
-  border: 1px solid #222;
   border-radius: 8px;
+  border: 1px solid #222;
 }
 
-/* inputs */
 input {
   padding: 8px;
   border-radius: 6px;
   border: 1px solid #333;
   background: #000;
   color: white;
-  box-sizing: border-box;
 }
 
-/* fila mensaje + botón */
 .msg-row {
   display: flex;
   gap: 8px;
@@ -113,7 +75,6 @@ input {
   flex: 1;
 }
 
-/* botón */
 button {
   padding: 8px 12px;
   border-radius: 6px;
@@ -121,34 +82,14 @@ button {
   background: red;
   color: white;
   cursor: pointer;
-  white-space: nowrap;
 }
 
-/* MODAL */
-#legalModal {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.9);
-}
-
-.modal-box {
-  background: #111;
-  max-width: 600px;
-  margin: 80px auto;
-  padding: 20px;
-  border-radius: 10px;
-}
-
-/* móvil */
-@media (max-width: 600px) {
-  .chat, .player {
-    width: calc(100% - 20px);
-    margin: 10px auto;
-  }
+.stats {
+  text-align: center;
+  margin-top: 10px;
+  color: #aaa;
 }
 </style>
-
 </head>
 
 <body>
@@ -158,20 +99,12 @@ button {
 </header>
 
 <div class="livebar">
-  🔴 EL GAMER DE LEVANTE / MMA LIVE
-</div>
-<div style="text-align:center; padding:15px; color:#aaa;">
-  Próximos eventos en directo próximamente
+  🔴 MMA LIVE / CHAT EN DIRECTO
 </div>
 
-<!-- CATEGORÍAS -->
-<div class="fighters">
-  MMA / BOXEO / LUCHA / EVENTOS
-</div>
-
-<!-- AVISO LEGAL -->
-<div class="legal-center">
-  <button onclick="openLegal()">Aviso Legal</button>
+<div class="stats">
+  👀 Espectadores: <span id="viewers">0</span> |
+  👥 Miembros: <span id="membersCount">0</span>
 </div>
 
 <!-- CHAT -->
@@ -188,39 +121,41 @@ button {
   </div>
 </div>
 
-<!-- MODAL LEGAL -->
-<div id="legalModal">
-  <div class="modal-box">
-    <h2 style="color:red;">Aviso Legal</h2>
-    <p>Este sitio no aloja contenido, solo chat y enlaces externos.</p>
-    <button onclick="closeLegal()">Cerrar</button>
-  </div>
-</div>
-
 <script>
-const firebaseURL = "https://elgamerdelevante-chat-default-rtdb.europe-west1.firebasedatabase.app/";
+/* 🔥 FIREBASE CONFIG */
+const firebaseConfig = {
+  databaseURL: "https://elgamerdelevante-chat-default-rtdb.europe-west1.firebasedatabase.app/"
+};
 
-/* CHAT */
-function loadMessages() {
-  fetch(firebaseURL + "/messages.json")
-    .then(res => res.json())
-    .then(data => {
-      const box = document.getElementById("messages");
-      box.innerHTML = "";
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
 
-      if (!data) return;
+/* IDs únicos */
+const userId = Math.random().toString(36).substr(2, 9);
 
-      Object.values(data).forEach(m => {
-        box.innerHTML += `
-          <div style="margin-bottom:10px;">
-            <b style="color:red">${m.name}:</b> ${m.text}
-          </div>
-        `;
-      });
+/* =========================
+   💬 CHAT REAL TIME
+========================= */
 
-      box.scrollTop = box.scrollHeight;
-    });
-}
+const messagesRef = db.ref("messages");
+
+messagesRef.on("value", (snap) => {
+  const data = snap.val();
+  const box = document.getElementById("messages");
+  box.innerHTML = "";
+
+  if (!data) return;
+
+  Object.values(data).forEach(m => {
+    box.innerHTML += `
+      <div style="margin-bottom:8px;">
+        <b style="color:red">${m.name}:</b> ${m.text}
+      </div>
+    `;
+  });
+
+  box.scrollTop = box.scrollHeight;
+});
 
 function sendMessage() {
   const name = document.getElementById("name").value;
@@ -228,26 +163,54 @@ function sendMessage() {
 
   if (!name || !message) return;
 
-  fetch(firebaseURL + "/messages.json", {
-    method: "POST",
-    body: JSON.stringify({ name, text: message })
+  messagesRef.push({
+    name,
+    text: message,
+    time: Date.now()
   });
 
   document.getElementById("message").value = "";
 }
 
-/* init */
-setInterval(loadMessages, 2000);
-loadMessages();
+/* =========================
+   👀 ESPECTADORES
+========================= */
 
-/* legal */
-function openLegal() {
-  document.getElementById("legalModal").style.display = "block";
-}
+const viewersRef = db.ref("viewers");
 
-function closeLegal() {
-  document.getElementById("legalModal").style.display = "none";
-}
+viewersRef.child(userId).set(true);
+
+window.addEventListener("beforeunload", () => {
+  viewersRef.child(userId).remove();
+});
+
+viewersRef.on("value", (snap) => {
+  const data = snap.val();
+  document.getElementById("viewers").innerText =
+    data ? Object.keys(data).length : 0;
+});
+
+/* =========================
+   👥 MIEMBROS
+========================= */
+
+const membersRef = db.ref("members");
+
+let username = "Usuario" + Math.floor(Math.random() * 1000);
+
+membersRef.child(userId).set({
+  name: username
+});
+
+window.addEventListener("beforeunload", () => {
+  membersRef.child(userId).remove();
+});
+
+membersRef.on("value", (snap) => {
+  const data = snap.val();
+  document.getElementById("membersCount").innerText =
+    data ? Object.keys(data).length : 0;
+});
 </script>
 
 </body>
