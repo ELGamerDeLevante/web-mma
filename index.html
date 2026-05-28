@@ -40,6 +40,35 @@ header {
   color: #aaa;
 }
 
+/* =========================
+   PLAYER LIVE
+========================= */
+
+.player-container {
+  max-width: 1100px;
+  margin: 20px auto;
+  padding: 0 20px;
+}
+
+.event-title-live {
+  text-align: center;
+  margin-bottom: 12px;
+  font-size: 26px;
+  font-weight: bold;
+  color: white;
+}
+
+.player-container iframe {
+  width: 100%;
+  aspect-ratio: 16/9;
+  border: 2px solid red;
+  border-radius: 12px;
+  background: black;
+  box-shadow:
+    0 0 20px rgba(255,0,0,0.4),
+    0 0 60px rgba(255,0,0,0.15);
+}
+
 /* PANEL INFO */
 .fighters {
   display: grid;
@@ -137,10 +166,7 @@ button {
   }
 }
 
-/* =========================
-   🔴 AVISO LEGAL
-========================= */
-
+/* AVISO LEGAL */
 .legal-footer {
   text-align: center;
   padding: 25px 0;
@@ -187,6 +213,21 @@ button {
   Próximos eventos de MMA en directo
 </div>
 
+<!-- 🔴 DIRECTO -->
+<div class="player-container">
+
+  <h2 class="event-title-live">
+    ROAD TO UFC S5
+  </h2>
+
+  <iframe
+    src="https://embedsports.me/ufc/road-to-ufc-s5-opening-round-episode-1-stream-1"
+    frameborder="0"
+    allowfullscreen>
+  </iframe>
+
+</div>
+
 <!-- PANEL MMA -->
 <div class="fighters">
   <div class="card">MMA</div>
@@ -216,12 +257,11 @@ button {
 
 </div>
 
-<!-- 🔴 BOTÓN AVISO LEGAL ABAJO -->
+<!-- AVISO LEGAL -->
 <div class="legal-footer">
   <button onclick="openLegal()">Aviso Legal</button>
 </div>
 
-<!-- MODAL -->
 <div id="legalModal">
   <div class="modal-box">
     <h2 style="color:red;">Aviso Legal</h2>
@@ -235,10 +275,7 @@ button {
 
 <script>
 
-/* =========================
-   🔥 FIREBASE
-========================= */
-
+/* FIREBASE */
 const firebaseConfig = {
   databaseURL:
     "https://elgamerdelevante-chat-default-rtdb.europe-west1.firebasedatabase.app/"
@@ -247,9 +284,7 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 
 const db = firebase.database();
-
-const userId =
-  Math.random().toString(36).substr(2, 9);
+const userId = Math.random().toString(36).substr(2, 9);
 
 /* CHAT */
 const messagesRef = db.ref("messages");
@@ -308,9 +343,7 @@ document.getElementById("name")
 .addEventListener("change", (e) => {
   username = e.target.value;
 
-  membersRef.child(userId).set({
-    name: username
-  });
+  membersRef.child(userId).set({ name: username });
 });
 
 membersRef.child(userId).onDisconnect().remove();
