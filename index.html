@@ -1,3 +1,4 @@
+HAZEMLO TU Y PASAMELO Y RESPETA TODO LO DEMAS
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -10,6 +11,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
 
 <style>
+
 body {
   margin: 0;
   font-family: Arial;
@@ -40,7 +42,57 @@ header {
   color: #aaa;
 }
 
+/* PLAYER */
+
+.player {
+  width: calc(100% - 40px);
+  max-width: 900px;
+  height: 520px;
+  margin: 20px auto;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 2px solid #222;
+  background: black;
+}
+
+/* EVENTOS */
+
+.events {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+  padding: 18px;
+  max-width: 900px;
+  margin: auto;
+}
+
+.event-card {
+  background: #111;
+  border: 1px solid #222;
+  border-radius: 10px;
+  padding: 15px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.event-card:hover {
+  border-color: red;
+  transform: scale(1.02);
+}
+
+.event-title {
+  font-weight: bold;
+  font-size: 16px;
+  margin-bottom: 6px;
+}
+
+.event-sub {
+  color: #999;
+  font-size: 13px;
+}
+
 /* PANEL INFO */
+
 .fighters {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
@@ -62,6 +114,7 @@ header {
 }
 
 /* CHAT */
+
 .chat {
   margin: 20px auto;
   background: #111;
@@ -73,6 +126,7 @@ header {
 }
 
 /* ESTADÍSTICAS */
+
 .chat-stats {
   display: flex;
   justify-content: space-between;
@@ -82,6 +136,7 @@ header {
 }
 
 /* MENSAJES */
+
 #messages {
   height: 220px;
   overflow-y: auto;
@@ -93,6 +148,7 @@ header {
 }
 
 /* INPUTS */
+
 input {
   padding: 8px;
   border-radius: 6px;
@@ -104,6 +160,7 @@ input {
 }
 
 /* FILA MENSAJE */
+
 .msg-row {
   display: flex;
   gap: 8px;
@@ -115,6 +172,7 @@ input {
 }
 
 /* BOTÓN */
+
 button {
   padding: 8px 12px;
   border-radius: 6px;
@@ -125,21 +183,7 @@ button {
   white-space: nowrap;
 }
 
-/* RESPONSIVE */
-@media (max-width: 600px) {
-  .chat {
-    width: calc(100% - 20px);
-    margin: 10px auto;
-  }
-
-  .fighters {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* =========================
-   🔴 AVISO LEGAL
-========================= */
+/* AVISO LEGAL */
 
 .legal-footer {
   text-align: center;
@@ -170,6 +214,27 @@ button {
   padding: 20px;
   border-radius: 10px;
 }
+
+/* RESPONSIVE */
+
+@media (max-width: 600px) {
+
+  .chat {
+    width: calc(100% - 20px);
+    margin: 10px auto;
+  }
+
+  .fighters {
+    grid-template-columns: 1fr;
+  }
+
+  .player {
+    height: 240px;
+    width: calc(100% - 20px);
+  }
+
+}
+
 </style>
 </head>
 
@@ -183,11 +248,65 @@ button {
   🔴 EL GAMER DE LEVANTE / MMA LIVE
 </div>
 
-<div class="info-text">
-  Próximos eventos de MMA en directo
+
+<!-- PLAYER -->
+
+<div class="player">
+  <iframe
+    id="livePlayer"
+    src="https://embedsports.me/ufc/ufc-fight-night-prelims-stream-1"
+    width="100%"
+    height="100%"
+    scrolling="no"
+    frameborder="0"
+    allowfullscreen
+    allowtransparency
+    referrerpolicy="unsafe-url">
+  </iframe>
+</div>
+
+<!-- EVENTOS -->
+
+<div class="events">
+
+  <div class="event-card"
+  onclick="changeEvent(
+  'UFC Fight Night: Prelims',
+  'https://embedsports.me/ufc/ufc-fight-night-prelims-stream-1',
+  'ufc_prelims'
+  )">
+
+    <div class="event-title">
+      UFC PRELIMS
+    </div>
+
+    <div class="event-sub">
+      Preliminary Card Live
+    </div>
+
+  </div>
+
+  <div class="event-card"
+  onclick="changeEvent(
+  'UFC Fight Night: Song Yadong vs Deiveson Figueiredo',
+  'https://embedsports.me/ufc/ufc-fight-night-song-yadong-vs-deiveson-figueiredo-stream-1',
+  'song_vs_figueiredo'
+  )">
+
+    <div class="event-title">
+      SONG VS FIGUEIREDO
+    </div>
+
+    <div class="event-sub">
+      UFC Main Event Live
+    </div>
+
+  </div>
+
 </div>
 
 <!-- PANEL MMA -->
+
 <div class="fighters">
   <div class="card">MMA</div>
   <div class="card">BOXEO</div>
@@ -196,9 +315,12 @@ button {
 </div>
 
 <!-- CHAT -->
+
 <div class="chat">
 
-  <h3>💬 Chat en vivo</h3>
+  <h3 id="eventTitle">
+    💬 UFC Fight Night: Prelims
+  </h3>
 
   <div class="chat-stats">
     <div>👀 Espectadores: <span id="viewers">0</span></div>
@@ -216,32 +338,41 @@ button {
 
 </div>
 
-<!-- 🔴 BOTÓN AVISO LEGAL ABAJO -->
+<!-- AVISO LEGAL -->
+
 <div class="legal-footer">
   <button onclick="openLegal()">Aviso Legal</button>
 </div>
 
 <!-- MODAL -->
+
 <div id="legalModal">
   <div class="modal-box">
-    <h2 style="color:red;">Aviso Legal</h2>
+
+    <h2 style="color:red;">
+      Aviso Legal
+    </h2>
+
     <p>
-      Esta página es un proyecto informativo y de entretenimiento.<br>
-      No aloja ni retransmite contenido propio.
+      Esta página es un proyecto informativo y de entretenimiento.
+      <br><br>
+      No aloja contenido propio ni retransmisiones oficiales.
     </p>
-    <button onclick="closeLegal()">Cerrar</button>
+
+    <button onclick="closeLegal()">
+      Cerrar
+    </button>
+
   </div>
 </div>
 
 <script>
 
-/* =========================
-   🔥 FIREBASE
-========================= */
+/* FIREBASE */
 
 const firebaseConfig = {
   databaseURL:
-    "https://elgamerdelevante-chat-default-rtdb.europe-west1.firebasedatabase.app/"
+  "https://elgamerdelevante-chat-default-rtdb.europe-west1.firebasedatabase.app/"
 };
 
 firebase.initializeApp(firebaseConfig);
@@ -249,26 +380,79 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
 const userId =
-  Math.random().toString(36).substr(2, 9);
+Math.random().toString(36).substr(2, 9);
+
+/* EVENTO ACTUAL */
+
+let currentEvent = "ufc_prelims";
 
 /* CHAT */
-const messagesRef = db.ref("messages");
 
-messagesRef.on("child_added", (snap) => {
-  const m = snap.val();
-  const box = document.getElementById("messages");
+let messagesRef =
+db.ref("messages/" + currentEvent);
 
-  const div = document.createElement("div");
-  div.style.marginBottom = "8px";
-  div.innerHTML = `<b style="color:red">${m.name}:</b> ${m.text}`;
+/* CAMBIAR EVENTO */
 
-  box.appendChild(div);
-  box.scrollTop = box.scrollHeight;
-});
+function changeEvent(title, iframe, eventId) {
+
+  document.getElementById("livePlayer")
+  .src = iframe;
+
+  document.getElementById("eventTitle")
+  .innerText = "💬 " + title;
+
+  currentEvent = eventId;
+
+  document.getElementById("messages")
+  .innerHTML = "";
+
+  messagesRef.off();
+
+  messagesRef =
+  db.ref("messages/" + currentEvent);
+
+  loadMessages();
+
+}
+
+/* CARGAR MENSAJES */
+
+function loadMessages() {
+
+  messagesRef.on("child_added", (snap) => {
+
+    const m = snap.val();
+
+    const box =
+    document.getElementById("messages");
+
+    const div =
+    document.createElement("div");
+
+    div.style.marginBottom = "8px";
+
+    div.innerHTML =
+    `<b style="color:red">${m.name}:</b> ${m.text}`;
+
+    box.appendChild(div);
+
+    box.scrollTop = box.scrollHeight;
+
+  });
+
+}
+
+loadMessages();
+
+/* ENVIAR */
 
 function sendMessage() {
-  const name = document.getElementById("name").value;
-  const message = document.getElementById("message").value;
+
+  const name =
+  document.getElementById("name").value;
+
+  const message =
+  document.getElementById("message").value;
 
   if (!name.trim() || !message.trim()) return;
 
@@ -279,58 +463,51 @@ function sendMessage() {
   });
 
   document.getElementById("message").value = "";
+
 }
 
 /* ENTER */
+
 document.getElementById("message")
 .addEventListener("keypress", function(e) {
-  if (e.key === "Enter") sendMessage();
+
+  if (e.key === "Enter") {
+    sendMessage();
+  }
+
 });
 
 /* VIEWERS */
+
 const viewersRef = db.ref("viewers");
 
 viewersRef.child(userId).set(true);
-viewersRef.child(userId).onDisconnect().remove();
+
+viewersRef.child(userId)
+.onDisconnect()
+.remove();
 
 viewersRef.on("value", (snap) => {
+
   const data = snap.val();
+
   document.getElementById("viewers").innerText =
-    data ? Object.keys(data).length : 0;
+  data ? Object.keys(data).length : 0;
+
 });
 
 /* MEMBERS */
-const membersRef = db.ref("members");
 
-let username = "";
+const membersRef = db.ref("members");
 
 document.getElementById("name")
 .addEventListener("change", (e) => {
-  username = e.target.value;
 
   membersRef.child(userId).set({
-    name: username
+    name: e.target.value
   });
+
 });
 
-membersRef.child(userId).onDisconnect().remove();
-
-membersRef.on("value", (snap) => {
-  const data = snap.val();
-  document.getElementById("membersCount").innerText =
-    data ? Object.keys(data).length : 0;
-});
-
-/* LEGAL */
-function openLegal() {
-  document.getElementById("legalModal").style.display = "block";
-}
-
-function closeLegal() {
-  document.getElementById("legalModal").style.display = "none";
-}
-
-</script>
-
-</body>
+membersRef.child(userId)
 </html>
