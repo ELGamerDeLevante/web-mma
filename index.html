@@ -34,6 +34,19 @@ header {
 }
 
 /* PANEL INFO */
+.info-panel {
+  max-width:750px;
+  margin:15px auto;
+  padding:15px;
+  background:#111;
+  border:1px solid #222;
+  border-radius:10px;
+  color:#ccc;
+  font-size:14px;
+  line-height:1.5;
+  text-align:center;
+}
+
 .fighters {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
@@ -161,6 +174,21 @@ button {
   🔴 EL GAMER DE LEVANTE / MMA LIVE
 </div>
 
+<!-- 🔥 PANEL INFORMACIÓN -->
+<div class="info-panel">
+
+  <b style="color:red;">INSTRUCCIONES</b><br><br>
+
+  Para ver los eventos en directo espera a que aparezcan en la web.<br>
+  Refrescar o actualizar la web.<br><br>
+
+  Una vez aparezca, darle a <b>play</b> y atrás dos o tres veces.<br>
+  Quitar pantallas emergentes y play.<br><br>
+
+  <b style="color:white;">Disfruten del show</b>
+
+</div>
+
 <!-- CHAT -->
 <div class="chat">
 
@@ -245,13 +273,11 @@ function sendMessage() {
 
   if (!name || !message) return;
 
-  /* límite caracteres */
   if (message.length > 250) {
     alert("Máximo 250 caracteres");
     return;
   }
 
-  /* filtro básico */
   const allowed = /^[a-zA-ZÀ-ÿ0-9\s.,!?¿¡:;()\-_"'@#%&+=/]*$/;
   if (!allowed.test(message)) {
     alert("El mensaje contiene caracteres no permitidos");
