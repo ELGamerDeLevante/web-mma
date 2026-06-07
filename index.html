@@ -214,7 +214,6 @@ const userId = Math.random().toString(36).substr(2, 9);
 /* CHAT */
 const messagesRef = db.ref("messages");
 
-/* MENSAJES */
 messagesRef.on("child_added", (snap) => {
   const m = snap.val();
   const box = document.getElementById("messages");
@@ -224,40 +223,15 @@ messagesRef.on("child_added", (snap) => {
     minute: "2-digit"
   });
 
-  const avatar = (m.name || "?").charAt(0).toUpperCase();
-
   const div = document.createElement("div");
-  div.style.marginBottom = "10px";
+  div.style.marginBottom = "8px";
 
   div.innerHTML = `
-    <div style="display:flex;gap:8px;align-items:flex-start;">
-      
-      <div style="
-        width:30px;
-        height:30px;
-        border-radius:50%;
-        background:red;
-        display:flex;
-        align-items:center;
-        justify-content:center;
-        font-weight:bold;
-        flex-shrink:0;
-      ">
-        ${avatar}
-      </div>
-
-      <div>
-        <div>
-          <b style="color:red">${m.name}</b>
-          <span style="color:#777;font-size:12px;">
-            ${hora}
-          </span>
-        </div>
-
-        <div>${m.text}</div>
-      </div>
-
+    <div>
+      <b style="color:red">${m.name}</b>
+      <span style="color:#777;font-size:12px;">${hora}</span>
     </div>
+    <div>${m.text}</div>
   `;
 
   box.appendChild(div);
