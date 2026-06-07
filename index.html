@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>EL GAMER DE LEVANTE</title>
 
-<!-- FIREBASE -->
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
 
@@ -44,26 +43,6 @@ header {
   text-align:center;
 }
 
-.fighters {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  gap: 10px;
-  padding: 18px;
-  max-width: 750px;
-  margin: auto;
-}
-
-.card {
-  background: #111;
-  color: white;
-  padding: 14px;
-  border-radius: 10px;
-  border: 1px solid #222;
-  text-align: center;
-  font-weight: bold;
-  font-size: 15px;
-}
-
 .chat {
   margin: 20px auto;
   background: #111;
@@ -71,7 +50,6 @@ header {
   border-radius: 10px;
   width: calc(100% - 40px);
   max-width: 500px;
-  box-sizing: border-box;
 }
 
 .chat-stats {
@@ -140,15 +118,6 @@ button {
   padding: 20px;
   border-radius: 10px;
 }
-
-/* 📌 PINNED */
-#pinnedMessage {
-  background:#222;
-  padding:10px;
-  margin-bottom:10px;
-  border-left:4px solid red;
-  font-size:14px;
-}
 </style>
 </head>
 
@@ -162,7 +131,6 @@ button {
   🔴 EL GAMER DE LEVANTE / MMA LIVE
 </div>
 
-<!-- INFO -->
 <div class="info-panel">
 <b style="color:red;">INSTRUCCIONES</b><br><br>
 Espera a que el evento aparezca en la web.<br>
@@ -171,7 +139,6 @@ Pulsa play y atrás 2-3 veces si hace falta.<br><br>
 Disfruta del show
 </div>
 
-<!-- CHAT -->
 <div class="chat">
 
 <h3>💬 Chat en vivo</h3>
@@ -180,9 +147,6 @@ Disfruta del show
 <div>👀 Espectadores: <span id="viewers">0</span></div>
 <div>👥 Miembros: <span id="membersCount">0</span></div>
 </div>
-
-<!-- 📌 MENSAJE FIJADO -->
-<div id="pinnedMessage">📌 Bienvenidos al chat en directo</div>
 
 <div id="messages"></div>
 
@@ -195,7 +159,6 @@ Disfruta del show
 
 </div>
 
-<!-- LEGAL -->
 <div class="legal-footer">
 <button onclick="openLegal()">Aviso Legal</button>
 </div>
@@ -217,25 +180,8 @@ databaseURL: "https://elgamerdelevante-chat-default-rtdb.europe-west1.firebaseda
 const db = firebase.database();
 const userId = Math.random().toString(36).substr(2, 9);
 
-/* 🔥 CONFIG */
-let lastMessageTime = 0;
-const slowMode = 3000;
-
-const mods = ["ELGAMERDELEVANTE"];
-const badWords = ["puta","mierda","idiota","tonto"];
-
-const userColors = {};
-
-function getColor(name){
-if(userColors[name]) return userColors[name];
-const colors=["#ff4d4d","#4da6ff","#4dff88","#ffd24d","#c44dff"];
-userColors[name]=colors[Math.floor(Math.random()*colors.length)];
-return userColors[name];
-}
-
-function hasBad(text){
-return badWords.some(w=>text.toLowerCase().includes(w));
-}
+/* 🔒 NICK RESERVADO */
+const RESERVED_NAME = "elgamerdelevante";
 
 /* CHAT */
 const messagesRef = db.ref("messages");
@@ -253,7 +199,7 @@ div.style.marginBottom="8px";
 
 div.innerHTML=`
 <div>
-<b style="color:${getColor(m.name)}">${m.name}</b>
+<b style="color:red">${m.name}</b>
 <span style="color:#777;font-size:12px;">${hora}</span>
 </div>
 <div>${m.text}</div>
@@ -263,23 +209,17 @@ box.appendChild(div);
 box.scrollTop=box.scrollHeight;
 });
 
-/* SEND */
+/* ENVIAR */
 function sendMessage(){
 let name=document.getElementById("name").value.trim();
 let message=document.getElementById("message").value.trim();
 
 if(!name||!message) return;
 
-/* slow mode */
-let now=Date.now();
-if(now-lastMessageTime<slowMode) return;
-lastMessageTime=now;
-
-/* limite */
-if(message.length>250) return;
-
-/* insultos */
-if(hasBad(message)) return;
+/* 🔒 BLOQUEO NICK RESERVADO */
+if(name.toLowerCase() === RESERVED_NAME){
+return; // nadie puede usarlo excepto tú (frontend)
+}
 
 messagesRef.push({
 name,
