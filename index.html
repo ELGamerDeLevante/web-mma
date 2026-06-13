@@ -118,32 +118,7 @@ button {
   padding: 20px;
   border-radius: 10px;
 }
-</style>
-</head>
 
-<body>
-
-<header>
-  EL GAMER DE <span style="color:red;">LEVANTE</span>
-</header>
-
-<div class="livebar">
-  🔴 EL GAMER DE LEVANTE / MMA LIVE
-</div>
-<!-- REPRODUCTOR -->
-<div class="player-container">
-  <div class="player-wrapper">
-    <iframe
-      src="https://jack07eo.mpstickv5m73jgravity.my/es/fighting/deportes-contacto---artes-marciales-2181196/velada-completa-frica.html?icg=RVM"
-      title="EL GAMER DE LEVANTE LIVE"
-      loading="lazy"
-      allow="autoplay; fullscreen; picture-in-picture"
-      allowfullscreen>
-    </iframe>
-  </div>
-</div>
-
-<style>
 .player-container{
   max-width:1200px;
   margin:20px auto;
@@ -153,7 +128,7 @@ button {
 .player-wrapper{
   position:relative;
   width:100%;
-  padding-bottom:56.25%; /* 16:9 */
+  padding-bottom:56.25%;
   background:#000;
   border-radius:12px;
   overflow:hidden;
@@ -171,15 +146,35 @@ button {
 }
 
 @media (max-width:768px){
-  .player-container{
-    padding:0 8px;
-  }
-
-  .player-wrapper{
-    border-radius:8px;
-  }
+  .player-container{padding:0 8px;}
+  .player-wrapper{border-radius:8px;}
 }
 </style>
+</head>
+
+<body>
+
+<header>
+  EL GAMER DE <span style="color:red;">LEVANTE</span>
+</header>
+
+<div class="livebar">
+  🔴 EL GAMER DE LEVANTE / MMA LIVE
+</div>
+
+<!-- REPRODUCTOR -->
+<div class="player-container">
+  <div class="player-wrapper">
+    <iframe
+      src="https://jack07eo.mpstickv5m73jgravity.my/es/fighting/deportes-contacto---artes-marciales-2181196/velada-completa-frica.html?icg=RVM"
+      title="EL GAMER DE LEVANTE LIVE"
+      loading="lazy"
+      allow="autoplay; fullscreen; picture-in-picture"
+      allowfullscreen>
+    </iframe>
+  </div>
+</div>
+
 <div class="info-panel">
 <b style="color:red;">INSTRUCCIONES</b><br><br>
 Espera a que el evento aparezca en la web.<br>
@@ -227,11 +222,9 @@ const firebaseConfig = {
 };
 
 firebase.initializeApp(firebaseConfig);
-
 const db = firebase.database();
 
-const db = firebase.database();
-const userId = Math.random().toString(36).substr(2, 9);
+const userId = Math.random().toString(36).slice(2, 11);
 
 /* 🔒 NICK RESERVADO */
 const RESERVED_NAME = "elgamerdelevante";
@@ -242,18 +235,9 @@ const userColors = {};
 function getUserColor(name) {
   if (userColors[name]) return userColors[name];
 
-  const colors = [
-    "#ff4d4d",
-    "#4da6ff",
-    "#4dff88",
-    "#ffd24d",
-    "#c44dff",
-    "#ff7aa2"
-  ];
-
+  const colors = ["#ff4d4d","#4da6ff","#4dff88","#ffd24d","#c44dff","#ff7aa2"];
   const color = colors[Math.floor(Math.random() * colors.length)];
   userColors[name] = color;
-
   return color;
 }
 
@@ -290,7 +274,6 @@ let message=document.getElementById("message").value.trim();
 
 if(!name||!message) return;
 
-/* 🔒 BLOQUEO NICK */
 if(name.toLowerCase() === RESERVED_NAME){
 return;
 }
