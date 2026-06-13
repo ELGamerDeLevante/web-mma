@@ -301,8 +301,8 @@ document.getElementById("message").value="";
 }
 
 /* ENTER */
-document.getElementById("message").addEventListener("keypress",(e)=>{
-if(e.key==="Enter") sendMessage();
+document.getElementById("message").addEventListener("keydown",(e)=>{
+  if(e.key==="Enter") sendMessage();
 });
 
 /* VIEWERS */
