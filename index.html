@@ -38,8 +38,12 @@ canvas{
     background:#000;
     border:2px solid #00ff88;
     border-radius:15px;
+    box-shadow:
+        0 0 25px rgba(0,255,136,0.4),
+        0 0 70px rgba(0,255,136,0.2);
     width:90vmin;
     height:90vmin;
+    image-rendering:auto;
 }
 
 button{
@@ -50,82 +54,101 @@ button{
     background:#00ff88;
     color:black;
     font-weight:bold;
+    cursor:pointer;
 }
 
-/* CONTROLES SIEMPRE VISIBLES */
-.controls{
-    margin-top:10px;
+button:hover{transform:scale(1.05);}
+
+#startScreen{
+    position:fixed;
+    inset:0;
+    background:black;
     display:flex;
     flex-direction:column;
-    gap:10px;
+    justify-content:center;
     align-items:center;
+    z-index:999;
 }
 
-.controls .row{
-    display:flex;
-    gap:10px;
+#gameOverScreen{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,0.95);
+    display:none;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    z-index:999;
 }
 
-.controls button{
-    width:65px;
-    height:65px;
-    font-size:22px;
+#gameOverScreen h1{
+    color:red;
+    font-size:50px;
+    margin-bottom:20px;
 }
 </style>
 </head>
 
 <body>
 
+<div id="startScreen">
+    <h1>🐍 SNAKE PRO+ RATS</h1>
+    <button onclick="startGame()">JUGAR</button>
+</div>
+
+<div id="gameOverScreen">
+    <h1>💀 GAME OVER</h1>
+    <div id="finalScore"></div>
+    <button onclick="startGame()">REINTENTAR</button>
+</div>
+
 <div class="container">
 
 <h1>Snake Neon Pro+</h1>
 
 <div class="stats">
-    <div>Score: <span id="score">0</span></div>
-    <div>Record: <span id="best">0</span></div>
+    <div>🏆 Score: <span id="score">0</span></div>
+    <div>⭐ Récord: <span id="best">0</span></div>
 </div>
 
 <canvas id="game"></canvas>
 
 <button onclick="startGame()">Reiniciar</button>
 
-<div class="controls">
-    <div class="row">
-        <button onclick="setDir('up')">⬆️</button>
-    </div>
-    <div class="row">
-        <button onclick="setDir('left')">⬅️</button>
-        <button onclick="setDir('down')">⬇️</button>
-        <button onclick="setDir('right')">➡️</button>
-    </div>
-</div>
-
 </div>
 
 <script>
 
+/* CANVAS */
 const canvas=document.getElementById("game");
 const ctx=canvas.getContext("2d");
 
 const scoreEl=document.getElementById("score");
 const bestEl=document.getElementById("best");
+const gameOverScreen=document.getElementById("gameOverScreen");
+const finalScore=document.getElementById("finalScore");
 
+/* GRID */
 let grid=20;
-let size=20;
+let size=25;
 
-let snake,food,rat;
-let dx=1,dy=0;
-let score=0;
-let best=localStorage.getItem("snakeBest")||0;
-bestEl.innerText=best;
-
+/* STATE */
+let snake,food,rat,dx,dy,score,best;
+let lastTime=0;
 let acc=0;
 let step=140;
-let last=0;
 
-/* RESIZE CORRECTO */
+/* SONIDO */
+let eatSound = new Audio("https://cdn.pixabay.com/download/audio/2022/03/15/audio_c8a4d2f6b7.mp3?filename=apple-bite-crunch-1-6923.mp3");
+let ratSound = new Audio("https://cdn.pixabay.com/download/audio/2021/09/06/audio_5c8f6c9d2b.mp3?filename=coin-collect-retro-100632.mp3");
+
+/* BEST */
+best=localStorage.getItem("snakeBest")||0;
+bestEl.innerText=best;
+
+/* RESIZE (FIX CANVAS FUERA DE PANTALLA) */
 function resize(){
-    let s=Math.min(innerWidth,innerHeight)*0.85;
+    let s=Math.min(innerWidth,innerHeight)*0.9;
     canvas.width=s;
     canvas.height=s;
     grid=canvas.width/size;
@@ -135,50 +158,94 @@ addEventListener("resize",resize);
 
 /* START */
 function startGame(){
-snake=[{x:10,y:10}];
-dx=1;dy=0;
-score=0;
-spawnFood();
-spawnRat();
+document.getElementById("startScreen").style.display="none";
+gameOverScreen.style.display="none";
+reset();
 requestAnimationFrame(loop);
 }
 
-/* SPAWN */
+/* RESET */
+function reset(){
+snake=[{x:10,y:10}];
+dx=1;dy=0;
+score=0;
+step=140;
+spawnFood();
+spawnRat();
+update();
+}
+
+/* FOOD */
 function spawnFood(){
-food={x:Math.floor(Math.random()*size),y:Math.floor(Math.random()*size)};
+food={
+x:Math.floor(Math.random()*size),
+y:Math.floor(Math.random()*size),
+t:Date.now()
+};
 }
 
+/* RAT */
 function spawnRat(){
-rat=Math.random()<0.3 ? {x:Math.floor(Math.random()*size),y:Math.floor(Math.random()*size)} : null;
+rat=null;
+if(Math.random()<0.35){
+rat={
+x:Math.floor(Math.random()*size),
+y:Math.floor(Math.random()*size),
+vx:(Math.random()-0.5)*0.15,
+vy:(Math.random()-0.5)*0.15
+};
+}
 }
 
-/* CONTROL */
-let next={x:1,y:0};
+/* SCORE */
+function update(){
+scoreEl.innerText=score;
+if(score>best){
+best=score;
+localStorage.setItem("snakeBest",best);
+bestEl.innerText=best;
+}
+}
+
+/* CONTROL SUAVE */
+let nextDir={x:1,y:0};
 
 function setDir(d){
-if(d==="up" && dy===0) next={x:0,y:-1};
-if(d==="down" && dy===0) next={x:0,y:1};
-if(d==="left" && dx===0) next={x:-1,y:0};
-if(d==="right" && dx===0) next={x:1,y:0};
+if(d==="up" && dy===0) nextDir={x:0,y:-1};
+if(d==="down" && dy===0) nextDir={x:0,y:1};
+if(d==="left" && dx===0) nextDir={x:-1,y:0};
+if(d==="right" && dx===0) nextDir={x:1,y:0};
+}
+
+function applyDir(){
+dx=nextDir.x;
+dy=nextDir.y;
 }
 
 /* MOVE */
 function move(){
-dx=next.x;
-dy=next.y;
 
 let h={x:snake[0].x+dx,y:snake[0].y+dy};
 snake.unshift(h);
 
+/* 🍎 */
 if(h.x===food.x&&h.y===food.y){
 score++;
+eatSound.currentTime=0;
+eatSound.play().catch(()=>{});
 spawnFood();
 spawnRat();
+if(step>70) step-=1.2;
 }
-else if(rat && h.x===rat.x && h.y===rat.y){
+
+/* 🐀 */
+else if(rat&&h.x===rat.x&&h.y===rat.y){
 score+=3;
+ratSound.currentTime=0;
+ratSound.play().catch(()=>{});
 spawnRat();
 }
+
 else snake.pop();
 }
 
@@ -189,7 +256,33 @@ return h.x<0||h.y<0||h.x>=size||h.y>=size||
 snake.slice(1).some(s=>s.x===h.x&&s.y===h.y);
 }
 
-/* DRAW (GARANTIZADO) */
+/* LOOP */
+function loop(time){
+requestAnimationFrame(loop);
+
+if(!lastTime) lastTime=time;
+
+acc+=time-lastTime;
+lastTime=time;
+
+while(acc>=step){
+
+applyDir();
+move();
+
+if(crash()){
+finalScore.innerText="Score: "+score;
+gameOverScreen.style.display="flex";
+return;
+}
+
+acc-=step;
+}
+
+draw();
+}
+
+/* DRAW REALISTA */
 function draw(){
 
 ctx.fillStyle="#000";
@@ -202,56 +295,71 @@ ctx.beginPath();
 ctx.moveTo(i,0);
 ctx.lineTo(i,canvas.height);
 ctx.stroke();
-
 ctx.beginPath();
 ctx.moveTo(0,i);
 ctx.lineTo(canvas.width,i);
 ctx.stroke();
 }
 
-/* FOOD */
-ctx.fillStyle="red";
+/* 🍎 */
+let pulse = 8 + Math.sin(Date.now()*0.005)*2;
+
+ctx.shadowBlur=25;
+ctx.shadowColor="#ff2d2d";
+ctx.fillStyle="#ff2d2d";
 ctx.beginPath();
-ctx.arc(food.x*grid+grid/2,food.y*grid+grid/2,grid/3,0,Math.PI*2);
+ctx.arc(
+food.x*grid+grid/2,
+food.y*grid+grid/2,
+pulse,
+0,Math.PI*2
+);
 ctx.fill();
 
-/* RAT */
+/* 🐀 */
 if(rat){
-ctx.fillStyle="gray";
+rat.x += rat.vx;
+rat.y += rat.vy;
+
+if(rat.x<0||rat.x>=size) rat.vx*=-1;
+if(rat.y<0||rat.y>=size) rat.vy*=-1;
+
+ctx.shadowBlur=15;
+ctx.shadowColor="#aaa";
+ctx.fillStyle="#bbb";
 ctx.beginPath();
-ctx.arc(rat.x*grid+grid/2,rat.y*grid+grid/2,grid/4,0,Math.PI*2);
+ctx.arc(
+rat.x*grid+grid/2,
+rat.y*grid+grid/2,
+6+Math.sin(Date.now()*0.01),
+0,Math.PI*2
+);
 ctx.fill();
 }
 
-/* SNAKE */
+/* 🐍 */
 snake.forEach((s,i)=>{
+
+let scale = i===0 ? 1 : 0.96;
+
+ctx.shadowBlur=12;
+ctx.shadowColor="#00ff88";
+
 ctx.fillStyle=i===0?"#00ff88":"#00cc66";
-ctx.fillRect(s.x*grid,s.y*grid,grid-2,grid-2);
+
+ctx.beginPath();
+ctx.roundRect(
+s.x*grid + (1-scale)*2,
+s.y*grid + (1-scale)*2,
+grid*scale-2,
+grid*scale-2,
+5
+);
+ctx.fill();
 });
 
-scoreEl.innerText=score;
+update();
 }
-
-/* LOOP */
-function loop(t){
-
-requestAnimationFrame(loop);
-
-if(!last) last=t;
-acc+=t-last;
-last=t;
-
-while(acc>=step){
-move();
-if(crash()) startGame();
-acc-=step;
-}
-
-draw();
-}
-
-/* INIT */
-startGame();
 
 </script>
 
