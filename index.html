@@ -85,6 +85,38 @@ button:hover{transform:scale(1.05);}
     font-size:50px;
     margin-bottom:20px;
 }
+
+/* 👉 AÑADIDO CSS CONTROLES */
+.controls{
+    margin-top:10px;
+    display:none;
+    justify-content:center;
+    align-items:center;
+    flex-direction:column;
+    gap:10px;
+}
+
+.controls .row{
+    display:flex;
+    gap:10px;
+}
+
+.controls button{
+    width:65px;
+    height:65px;
+    font-size:22px;
+    border-radius:12px;
+    background:#00ff88;
+    border:none;
+    color:black;
+    font-weight:bold;
+}
+
+@media (max-width:768px){
+    .controls{
+        display:flex;
+    }
+}
 </style>
 </head>
 
@@ -114,6 +146,18 @@ button:hover{transform:scale(1.05);}
 
 <button onclick="startGame()">Reiniciar</button>
 
+<!-- 👉 AÑADIDO HTML CONTROLES -->
+<div class="controls">
+    <div class="row">
+        <button onclick="setDir('up')">⬆️</button>
+    </div>
+    <div class="row">
+        <button onclick="setDir('left')">⬅️</button>
+        <button onclick="setDir('down')">⬇️</button>
+        <button onclick="setDir('right')">➡️</button>
+    </div>
+</div>
+
 </div>
 
 <script>
@@ -127,7 +171,6 @@ const bestEl=document.getElementById("best");
 const gameOverScreen=document.getElementById("gameOverScreen");
 const finalScore=document.getElementById("finalScore");
 
-/* GRID */
 let grid=20;
 let size=25;
 
@@ -137,7 +180,7 @@ let lastTime=0;
 let acc=0;
 let step=140;
 
-/* 🎵 SONIDOS (solo efectos reales, sin voces) */
+/* SONIDOS */
 let eatSound = new Audio("https://cdn.pixabay.com/download/audio/2022/03/15/audio_c8a4d2f6b7.mp3?filename=apple-bite-crunch-1-6923.mp3");
 let ratSound = new Audio("https://cdn.pixabay.com/download/audio/2021/09/06/audio_5c8f6c9d2b.mp3?filename=coin-collect-retro-100632.mp3");
 
@@ -181,20 +224,14 @@ update();
 
 /* FOOD */
 function spawnFood(){
-food={
-x:Math.floor(Math.random()*size),
-y:Math.floor(Math.random()*size)
-};
+food={x:Math.floor(Math.random()*size),y:Math.floor(Math.random()*size)};
 }
 
-/* RATAS */
+/* RAT */
 function spawnRat(){
 rat=null;
 if(Math.random()<0.35){
-rat={
-x:Math.floor(Math.random()*size),
-y:Math.floor(Math.random()*size)
-};
+rat={x:Math.floor(Math.random()*size),y:Math.floor(Math.random()*size)};
 }
 }
 
@@ -212,53 +249,37 @@ bestEl.innerText=best;
 /* MOVE */
 function move(){
 
-let head={
-x:snake[0].x+dx,
-y:snake[0].y+dy
-};
+let h={x:snake[0].x+dx,y:snake[0].y+dy};
+snake.unshift(h);
 
-snake.unshift(head);
-
-/* 🍎 MANZANA */
-if(head.x===food.x && head.y===food.y){
-score+=1;
+if(h.x===food.x&&h.y===food.y){
+score++;
 eatSound.currentTime=0;
 eatSound.play().catch(()=>{});
-
 spawnFood();
 spawnRat();
-
 if(step>70) step-=1.2;
 }
 
-/* 🐀 RATA BONUS */
-else if(rat && head.x===rat.x && head.y===rat.y){
+else if(rat&&h.x===rat.x&&h.y===rat.y){
 score+=3;
 ratSound.currentTime=0;
 ratSound.play().catch(()=>{});
-
 spawnRat();
 }
 
-/* NORMAL */
-else{
-snake.pop();
-}
+else snake.pop();
 }
 
 /* COLLISION */
 function crash(){
 let h=snake[0];
-
-return (
-h.x<0||h.y<0||h.x>=size||h.y>=size||
-snake.slice(1).some(s=>s.x===h.x&&s.y===h.y)
-);
+return h.x<0||h.y<0||h.x>=size||h.y>=size||
+snake.slice(1).some(s=>s.x===h.x&&s.y===h.y);
 }
 
 /* LOOP */
 function loop(time){
-
 requestAnimationFrame(loop);
 
 if(!lastTime) lastTime=time;
@@ -267,7 +288,6 @@ acc+=time-lastTime;
 lastTime=time;
 
 while(acc>=step){
-
 move();
 
 if(crash()){
@@ -288,7 +308,6 @@ function draw(){
 ctx.fillStyle="#000";
 ctx.fillRect(0,0,canvas.width,canvas.height);
 
-/* GRID */
 ctx.strokeStyle="rgba(255,255,255,0.06)";
 for(let i=0;i<canvas.width;i+=grid){
 ctx.beginPath();
@@ -302,54 +321,31 @@ ctx.lineTo(canvas.width,i);
 ctx.stroke();
 }
 
-/* 🍎 MANZANA */
 let pulse=Math.sin(Date.now()/120)*2;
 
 ctx.shadowBlur=20;
 ctx.shadowColor="red";
-
 ctx.fillStyle="red";
 ctx.beginPath();
-ctx.arc(
-food.x*grid+grid/2,
-food.y*grid+grid/2,
-8+pulse,
-0,Math.PI*2
-);
+ctx.arc(food.x*grid+grid/2,food.y*grid+grid/2,8+pulse,0,Math.PI*2);
 ctx.fill();
 
-/* 🐀 RATA */
 if(rat){
-ctx.shadowBlur=15;
-ctx.shadowColor="#999";
-
+ctx.shadowBlur=10;
+ctx.shadowColor="#aaa";
 ctx.fillStyle="#bbb";
 ctx.beginPath();
-ctx.arc(
-rat.x*grid+grid/2,
-rat.y*grid+grid/2,
-6+pulse,
-0,Math.PI*2
-);
+ctx.arc(rat.x*grid+grid/2,rat.y*grid+grid/2,6+pulse,0,Math.PI*2);
 ctx.fill();
 }
 
-/* 🐍 SERPIENTE */
 snake.forEach((s,i)=>{
-
 ctx.shadowBlur=12;
 ctx.shadowColor="#00ff88";
-
 ctx.fillStyle=i===0?"#00ff88":"#00cc66";
 
 ctx.beginPath();
-ctx.roundRect(
-s.x*grid,
-s.y*grid,
-grid-2,
-grid-2,
-5
-);
+ctx.roundRect(s.x*grid,s.y*grid,grid-2,grid-2,5);
 ctx.fill();
 });
 
@@ -358,10 +354,10 @@ update();
 
 /* CONTROL */
 function setDir(d){
-if(d==="up" && dy===0){dx=0;dy=-1;}
-if(d==="down" && dy===0){dx=0;dy=1;}
-if(d==="left" && dx===0){dx=-1;dy=0;}
-if(d==="right" && dx===0){dx=1;dy=0;}
+if(d==="up"&&dy===0){dx=0;dy=-1;}
+if(d==="down"&&dy===0){dx=0;dy=1;}
+if(d==="left"&&dx===0){dx=-1;dy=0;}
+if(d==="right"&&dy===0){dx=1;dy=0;}
 }
 
 addEventListener("keydown",e=>{
