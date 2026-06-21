@@ -3,309 +3,389 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>EL GAMER DE LEVANTE</title>
-
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+<title>Snake Neon</title>
 
 <style>
-body {
-  margin: 0;
-  font-family: Arial;
-  background: black;
-  color: white;
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
 }
 
-header {
-  text-align: center;
-  padding: 20px;
-  font-size: 30px;
-  font-weight: bold;
+body{
+    background:radial-gradient(circle,#141414,#050505);
+    color:white;
+    font-family:Segoe UI,Arial,sans-serif;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    min-height:100vh;
+    overflow:hidden;
 }
 
-.livebar {
-  text-align: center;
-  padding: 10px;
-  background: red;
-  font-weight: bold;
+.container{
+    text-align:center;
 }
 
-.info-panel {
-  max-width:750px;
-  margin:15px auto;
-  padding:15px;
-  background:#111;
-  border:1px solid #222;
-  border-radius:10px;
-  color:#ccc;
-  font-size:14px;
-  line-height:1.5;
-  text-align:center;
+h1{
+    color:#00ff88;
+    text-shadow:0 0 20px #00ff88;
+    margin-bottom:10px;
 }
 
-.chat {
-  margin: 20px auto;
-  background: #111;
-  padding: 15px;
-  border-radius: 10px;
-  width: calc(100% - 40px);
-  max-width: 500px;
+.stats{
+    display:flex;
+    justify-content:center;
+    gap:25px;
+    margin-bottom:15px;
+    font-size:20px;
 }
 
-.chat-stats {
-  display: flex;
-  justify-content: space-between;
-  font-size: 14px;
-  color: #aaa;
-  margin-bottom: 10px;
+canvas{
+    background:#000;
+    border:2px solid #00ff88;
+    border-radius:15px;
+    box-shadow:
+        0 0 20px #00ff88,
+        0 0 50px #00ff88;
+    max-width:95vw;
 }
 
-#messages {
-  height: 220px;
-  overflow-y: auto;
-  background: black;
-  padding: 10px;
-  margin-bottom: 10px;
-  border: 1px solid #222;
-  border-radius: 8px;
+button{
+    margin-top:15px;
+    padding:12px 25px;
+    border:none;
+    border-radius:10px;
+    background:#00ff88;
+    color:black;
+    font-weight:bold;
+    cursor:pointer;
+    font-size:16px;
 }
 
-input {
-  padding: 8px;
-  border-radius: 6px;
-  border: 1px solid #333;
-  background: #000;
-  color: white;
-  width: 100%;
-  box-sizing: border-box;
+button:hover{
+    transform:scale(1.05);
 }
 
-.msg-row {
-  display: flex;
-  gap: 8px;
-  margin-top: 8px;
+#startScreen{
+    position:fixed;
+    inset:0;
+    background:#000;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    z-index:999;
 }
 
-#message {
-  flex: 1;
+#startScreen h1{
+    font-size:50px;
 }
 
-button {
-  padding: 8px 12px;
-  border-radius: 6px;
-  border: none;
-  background: red;
-  color: white;
-  cursor: pointer;
+#gameOver{
+    display:none;
+    margin-top:10px;
+    color:#ff4444;
+    font-size:22px;
+    font-weight:bold;
 }
 
-.legal-footer {
-  text-align: center;
-  padding: 25px 0;
+.controls{
+    margin-top:20px;
+    display:none;
 }
 
-#legalModal {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.9);
+.controls button{
+    width:70px;
+    height:70px;
+    margin:5px;
+    font-size:25px;
 }
 
-.modal-box {
-  background: #111;
-  max-width: 500px;
-  margin: 80px auto;
-  padding: 20px;
-  border-radius: 10px;
-}
-
-.player-container{
-  max-width:1200px;
-  margin:20px auto;
-  padding:0 15px;
-}
-
-.player-wrapper{
-  position:relative;
-  width:100%;
-  padding-bottom:56.25%;
-  background:#000;
-  border-radius:12px;
-  overflow:hidden;
-  box-shadow:0 0 20px rgba(255,0,0,.25);
-  border:1px solid #222;
-}
-
-.player-wrapper iframe{
-  position:absolute;
-  top:0;
-  left:0;
-  width:100%;
-  height:100%;
-  border:0;
-}
-
-@media (max-width:768px){
-  .player-container{padding:0 8px;}
-  .player-wrapper{border-radius:8px;}
+@media(max-width:768px){
+    .controls{
+        display:block;
+    }
 }
 </style>
 </head>
-
 <body>
 
-<header>
-  EL GAMER DE <span style="color:red;">LEVANTE</span>
-</header>
-
-<div class="livebar">
-  🔴 EL GAMER DE LEVANTE / MMA LIVE
+<div id="startScreen">
+    <h1>🐍 SNAKE NEON</h1>
+    <p style="margin:20px;">Come manzanas y supera tu récord.</p>
+    <button onclick="startGame()">JUGAR</button>
 </div>
 
- 
-  
-<div class="info-panel">
-<b style="color:red;">INSTRUCCIONES</b><br><br>
-Espera a que el evento aparezca en la web.<br>
-Actualiza la página.<br><br>
-Pulsa play y atrás 2-3 veces si hace falta.<br><br>
-Disfruta del show
-</div>
+<div class="container">
 
-<div class="chat">
+    <h1>🐍 Snake Neon</h1>
 
-<h3>💬 Chat en vivo</h3>
+    <div class="stats">
+        <div>🏆 <span id="score">0</span></div>
+        <div>⭐ Récord: <span id="best">0</span></div>
+    </div>
 
-<div class="chat-stats">
-<div>👀 Espectadores: <span id="viewers">0</span></div>
-<div>👥 Miembros: <span id="membersCount">0</span></div>
-</div>
+    <canvas id="game" width="500" height="500"></canvas>
 
-<div id="messages"></div>
+    <div id="gameOver">GAME OVER</div>
 
-<input id="name" placeholder="Nombre">
+    <button onclick="resetGame()">Reiniciar</button>
 
-<div class="msg-row">
-<input id="message" placeholder="Mensaje">
-<button onclick="sendMessage()">Enviar</button>
-</div>
+    <div class="controls">
+        <div>
+            <button onclick="setDirection('up')">⬆️</button>
+        </div>
+        <div>
+            <button onclick="setDirection('left')">⬅️</button>
+            <button onclick="setDirection('down')">⬇️</button>
+            <button onclick="setDirection('right')">➡️</button>
+        </div>
+    </div>
 
-</div>
-
-<div class="legal-footer">
-<button onclick="openLegal()">Aviso Legal</button>
-</div>
-
-<div id="legalModal">
-<div class="modal-box">
-<h2 style="color:red;">Aviso Legal</h2>
-<p>Proyecto informativo y de entretenimiento.<br>No alojamos contenido propio.</p>
-<button onclick="closeLegal()">Cerrar</button>
-</div>
 </div>
 
 <script>
 
-const firebaseConfig = {
-  databaseURL: "https://elgamerdelevante-chat-default-rtdb.europe-west1.firebasedatabase.app/"
-};
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
 
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
+const scoreEl = document.getElementById("score");
+const bestEl = document.getElementById("best");
+const gameOverEl = document.getElementById("gameOver");
 
-const userId = Math.random().toString(36).slice(2, 11);
+const grid = 20;
+const tiles = canvas.width / grid;
 
-/* 🔒 NICK RESERVADO */
-const RESERVED_NAME = "elgamerdelevante";
+let snake;
+let food;
+let dx;
+let dy;
+let score;
+let speed;
+let gameLoop;
 
-/* 🎨 COLORES USUARIOS */
-const userColors = {};
+let best = localStorage.getItem("snakeBest") || 0;
+bestEl.textContent = best;
 
-function getUserColor(name) {
-  if (userColors[name]) return userColors[name];
-
-  const colors = ["#ff4d4d","#4da6ff","#4dff88","#ffd24d","#c44dff","#ff7aa2"];
-  const color = colors[Math.floor(Math.random() * colors.length)];
-  userColors[name] = color;
-  return color;
+function startGame(){
+    document.getElementById("startScreen").style.display="none";
+    resetGame();
 }
 
-/* CHAT */
-const messagesRef = db.ref("messages");
+function resetGame(){
 
-messagesRef.on("child_added",(snap)=>{
-const m=snap.val();
-const box=document.getElementById("messages");
+    snake=[{x:10,y:10}];
 
-const hora=new Date(m.time).toLocaleTimeString([],{
-hour:"2-digit",minute:"2-digit"
-});
+    dx=1;
+    dy=0;
 
-const div=document.createElement("div");
-div.style.marginBottom="8px";
+    score=0;
+    speed=120;
 
-div.innerHTML=`
-<div>
-<b style="color:${getUserColor(m.name)}">${m.name}</b>
-<span style="color:#777;font-size:12px;">${hora}</span>
-</div>
-<div>${m.text}</div>
-`;
+    gameOverEl.style.display="none";
 
-box.appendChild(div);
-box.scrollTop=box.scrollHeight;
-});
+    generateFood();
 
-/* ENVIAR */
-function sendMessage(){
-let name=document.getElementById("name").value.trim();
-let message=document.getElementById("message").value.trim();
+    clearInterval(gameLoop);
+    gameLoop=setInterval(drawGame,speed);
 
-if(!name||!message) return;
-
-if(name.toLowerCase() === RESERVED_NAME){
-return;
+    updateScore();
 }
 
-messagesRef.push({
-name,
-text:message,
-time:Date.now()
-});
+function updateScore(){
 
-document.getElementById("message").value="";
+    scoreEl.textContent=score;
+
+    if(score>best){
+        best=score;
+        localStorage.setItem("snakeBest",best);
+        bestEl.textContent=best;
+    }
 }
 
-/* ENTER */
-document.getElementById("message").addEventListener("keydown",(e)=>{
-  if(e.key==="Enter") sendMessage();
-});
+function generateFood(){
 
-/* VIEWERS */
-db.ref("viewers").child(userId).set(true);
-db.ref("viewers").child(userId).onDisconnect().remove();
-
-db.ref("viewers").on("value",(snap)=>{
-const d=snap.val();
-document.getElementById("viewers").innerText=d?Object.keys(d).length:0;
-});
-
-/* MEMBERS */
-db.ref("members").child(userId).set({name:"user"});
-db.ref("members").child(userId).onDisconnect().remove();
-
-db.ref("members").on("value",(snap)=>{
-const d=snap.val();
-document.getElementById("membersCount").innerText=d?Object.keys(d).length:0;
-});
-
-/* LEGAL */
-function openLegal(){
-document.getElementById("legalModal").style.display="block";
+    food={
+        x:Math.floor(Math.random()*tiles),
+        y:Math.floor(Math.random()*tiles)
+    };
 }
-function closeLegal(){
-document.getElementById("legalModal").style.display="none";
+
+function moveSnake(){
+
+    const head={
+        x:snake[0].x+dx,
+        y:snake[0].y+dy
+    };
+
+    snake.unshift(head);
+
+    if(head.x===food.x && head.y===food.y){
+
+        score++;
+
+        updateScore();
+
+        generateFood();
+
+        if(speed>60){
+
+            speed-=3;
+
+            clearInterval(gameLoop);
+            gameLoop=setInterval(drawGame,speed);
+        }
+
+    }else{
+        snake.pop();
+    }
 }
+
+function collision(){
+
+    const head=snake[0];
+
+    if(
+        head.x<0 ||
+        head.y<0 ||
+        head.x>=tiles ||
+        head.y>=tiles
+    ){
+        return true;
+    }
+
+    for(let i=1;i<snake.length;i++){
+
+        if(
+            head.x===snake[i].x &&
+            head.y===snake[i].y
+        ){
+            return true;
+        }
+    }
+
+    return false;
+}
+
+function drawGame(){
+
+    moveSnake();
+
+    if(collision()){
+
+        clearInterval(gameLoop);
+
+        gameOverEl.style.display="block";
+
+        return;
+    }
+
+    ctx.fillStyle="#050505";
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+
+    ctx.strokeStyle="#111";
+
+    for(let i=0;i<canvas.width;i+=grid){
+
+        ctx.beginPath();
+        ctx.moveTo(i,0);
+        ctx.lineTo(i,canvas.height);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(0,i);
+        ctx.lineTo(canvas.width,i);
+        ctx.stroke();
+    }
+
+    ctx.shadowBlur=20;
+    ctx.shadowColor="#ff3333";
+
+    ctx.fillStyle="#ff3333";
+
+    ctx.beginPath();
+    ctx.arc(
+        food.x*grid+10,
+        food.y*grid+10,
+        8,
+        0,
+        Math.PI*2
+    );
+    ctx.fill();
+
+    snake.forEach((segment,index)=>{
+
+        ctx.shadowBlur=15;
+        ctx.shadowColor="#00ff88";
+
+        if(index===0){
+
+            ctx.fillStyle="#00ff88";
+
+            ctx.beginPath();
+            ctx.roundRect(
+                segment.x*grid,
+                segment.y*grid,
+                18,
+                18,
+                5
+            );
+            ctx.fill();
+
+            ctx.shadowBlur=0;
+
+            ctx.fillStyle="black";
+
+            ctx.beginPath();
+            ctx.arc(segment.x*grid+6,segment.y*grid+7,2,0,Math.PI*2);
+            ctx.arc(segment.x*grid+13,segment.y*grid+7,2,0,Math.PI*2);
+            ctx.fill();
+
+        }else{
+
+            ctx.fillStyle="#00cc66";
+
+            ctx.beginPath();
+            ctx.roundRect(
+                segment.x*grid,
+                segment.y*grid,
+                18,
+                18,
+                4
+            );
+            ctx.fill();
+        }
+    });
+
+}
+
+function setDirection(dir){
+
+    if(dir==="up" && dy===0){
+        dx=0;dy=-1;
+    }
+
+    if(dir==="down" && dy===0){
+        dx=0;dy=1;
+    }
+
+    if(dir==="left" && dx===0){
+        dx=-1;dy=0;
+    }
+
+    if(dir==="right" && dx===0){
+        dx=1;dy=0;
+    }
+}
+
+document.addEventListener("keydown",(e)=>{
+
+    if(e.key==="ArrowUp") setDirection("up");
+    if(e.key==="ArrowDown") setDirection("down");
+    if(e.key==="ArrowLeft") setDirection("left");
+    if(e.key==="ArrowRight") setDirection("right");
+});
 
 </script>
 
