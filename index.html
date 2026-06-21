@@ -39,10 +39,13 @@ h1{
 }
 
 canvas{
-    background:#000;
+    background:radial-gradient(circle at center,#020202,#000);
     border:2px solid #00ff88;
     border-radius:15px;
-    box-shadow:0 0 40px #00ff88;
+    box-shadow:
+        0 0 20px rgba(0,255,136,0.4),
+        0 0 60px rgba(0,255,136,0.2),
+        inset 0 0 20px rgba(0,255,136,0.1);
     width:90vmin;
     height:90vmin;
 }
@@ -72,7 +75,6 @@ button:hover{transform:scale(1.05);}
     z-index:999;
 }
 
-/* GAME OVER */
 #gameOverScreen{
     position:fixed;
     inset:0;
@@ -90,7 +92,6 @@ button:hover{transform:scale(1.05);}
     margin-bottom:20px;
 }
 
-/* CONTROLES MOVIL */
 .controls{
     display:none;
     margin-top:10px;
@@ -148,11 +149,6 @@ button:hover{transform:scale(1.05);}
 
 <script>
 
-/* 🎵 MÚSICA */
-let music = new Audio("https://cdn.pixabay.com/audio/2022/10/16/audio_12b6b1d0f2.mp3");
-music.loop = true;
-music.volume = 0.3;
-
 const canvas=document.getElementById("game");
 const ctx=canvas.getContext("2d");
 
@@ -180,14 +176,8 @@ window.addEventListener("resize",resize);
 
 /* START */
 function startGame(){
-
 document.getElementById("startScreen").style.display="none";
 gameOverScreen.style.display="none";
-
-/* 🎵 PLAY MUSIC */
-music.currentTime=0;
-music.play();
-
 reset();
 }
 
@@ -237,12 +227,10 @@ y:snake[0].y+dy
 
 snake.unshift(head);
 
-/* comida */
 if(head.x===food.x && head.y===food.y){
 score++;
 spawnFood();
 
-/* dificultad suave */
 if(speed>60){
 speed-=2;
 clearInterval(loop);
@@ -253,10 +241,9 @@ snake.pop();
 }
 }
 
-/* COLISION */
+/* COLLISION */
 function collision(){
 let h=snake[0];
-
 return (
 h.x<0||h.y<0||h.x>=size||h.y>=size||
 snake.slice(1).some(s=>s.x===h.x&&s.y===h.y)
@@ -271,21 +258,18 @@ move();
 if(collision()){
 clearInterval(loop);
 
-/* 🎵 STOP MUSIC */
-music.pause();
-
 gameOverScreen.style.display="flex";
 document.getElementById("finalScore").innerText="Score: "+score;
 
 return;
 }
 
-/* BACKGROUND */
-ctx.fillStyle="#000";
+/* BACKGROUND (motion blur) */
+ctx.fillStyle="rgba(0,0,0,0.35)";
 ctx.fillRect(0,0,canvas.width,canvas.height);
 
-/* GRID */
-ctx.strokeStyle="#111";
+/* GRID SUAVE */
+ctx.strokeStyle="rgba(255,255,255,0.04)";
 for(let i=0;i<canvas.width;i+=grid){
 ctx.beginPath();
 ctx.moveTo(i,0);
@@ -298,29 +282,51 @@ ctx.lineTo(canvas.width,i);
 ctx.stroke();
 }
 
-/* FOOD PULSANTE */
-let pulse=Math.sin(Date.now()/120)*2;
+/* FOOD NEON */
+let pulse=Math.sin(Date.now()/100)*3;
 
-ctx.shadowBlur=25;
-ctx.shadowColor="red";
+let gradFood=ctx.createRadialGradient(
+food.x*grid+grid/2,
+food.y*grid+grid/2,
+2,
+food.x*grid+grid/2,
+food.y*grid+grid/2,
+grid
+);
 
-ctx.fillStyle="red";
+gradFood.addColorStop(0,"#ff2d2d");
+gradFood.addColorStop(1,"transparent");
+
+ctx.shadowBlur=30;
+ctx.shadowColor="#ff2d2d";
+
+ctx.fillStyle=gradFood;
 ctx.beginPath();
 ctx.arc(
 food.x*grid+grid/2,
 food.y*grid+grid/2,
-grid/2-3+pulse,
+8+pulse,
 0,Math.PI*2
 );
 ctx.fill();
 
-/* SNAKE */
+/* SNAKE NEÓN GRADIENTE */
 snake.forEach((s,i)=>{
 
-ctx.shadowBlur=15;
+let grad = ctx.createLinearGradient(
+s.x*grid,
+s.y*grid,
+s.x*grid+grid,
+s.y*grid+grid
+);
+
+grad.addColorStop(0,i===0?"#00ff88":"#00cc66");
+grad.addColorStop(1,"#004d33");
+
+ctx.shadowBlur=20;
 ctx.shadowColor="#00ff88";
 
-ctx.fillStyle=i===0?"#00ff88":"#00cc66";
+ctx.fillStyle=grad;
 
 ctx.beginPath();
 ctx.roundRect(
@@ -328,10 +334,11 @@ s.x*grid,
 s.y*grid,
 grid-2,
 grid-2,
-5
+6
 );
 ctx.fill();
 
+/* ojos */
 if(i===0){
 ctx.shadowBlur=0;
 ctx.fillStyle="black";
