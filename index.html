@@ -43,7 +43,6 @@ canvas{
         0 0 70px rgba(0,255,136,0.2);
     width:90vmin;
     height:90vmin;
-    image-rendering:auto;
 }
 
 button{
@@ -79,12 +78,6 @@ button:hover{transform:scale(1.05);}
     justify-content:center;
     align-items:center;
     z-index:999;
-}
-
-#gameOverScreen h1{
-    color:red;
-    font-size:50px;
-    margin-bottom:20px;
 }
 </style>
 </head>
@@ -128,9 +121,18 @@ const bestEl=document.getElementById("best");
 const gameOverScreen=document.getElementById("gameOverScreen");
 const finalScore=document.getElementById("finalScore");
 
-/* GRID */
 let grid=20;
 let size=25;
+
+/* IMÁGENES */
+const imgApple = new Image();
+imgApple.src = "https://cdn.pixabay.com/photo/2013/07/12/18/39/apple-153436_1280.png";
+
+const imgRat = new Image();
+imgRat.src = "https://cdn.pixabay.com/photo/2016/04/01/11/09/rat-1307645_1280.png";
+
+const imgSnake = new Image();
+imgSnake.src = "https://cdn.pixabay.com/photo/2016/03/31/19/56/snake-1296227_1280.png";
 
 /* STATE */
 let snake,food,rat,dx,dy,score,best;
@@ -138,20 +140,16 @@ let lastTime=0;
 let acc=0;
 let step=140;
 
-/* SONIDO */
-let eatSound = new Audio("https://cdn.pixabay.com/download/audio/2022/03/15/audio_c8a4d2f6b7.mp3?filename=apple-bite-crunch-1-6923.mp3");
-let ratSound = new Audio("https://cdn.pixabay.com/download/audio/2021/09/06/audio_5c8f6c9d2b.mp3?filename=coin-collect-retro-100632.mp3");
-
 /* BEST */
 best=localStorage.getItem("snakeBest")||0;
 bestEl.innerText=best;
 
-/* RESIZE (FIX CANVAS FUERA DE PANTALLA) */
+/* RESIZE */
 function resize(){
-    let s=Math.min(innerWidth,innerHeight)*0.9;
-    canvas.width=s;
-    canvas.height=s;
-    grid=canvas.width/size;
+let s=Math.min(innerWidth,innerHeight)*0.9;
+canvas.width=s;
+canvas.height=s;
+grid=canvas.width/size;
 }
 resize();
 addEventListener("resize",resize);
@@ -170,8 +168,10 @@ snake=[{x:10,y:10}];
 dx=1;dy=0;
 score=0;
 step=140;
+
 spawnFood();
 spawnRat();
+
 update();
 }
 
@@ -179,8 +179,7 @@ update();
 function spawnFood(){
 food={
 x:Math.floor(Math.random()*size),
-y:Math.floor(Math.random()*size),
-t:Date.now()
+y:Math.floor(Math.random()*size)
 };
 }
 
@@ -190,9 +189,7 @@ rat=null;
 if(Math.random()<0.35){
 rat={
 x:Math.floor(Math.random()*size),
-y:Math.floor(Math.random()*size),
-vx:(Math.random()-0.5)*0.15,
-vy:(Math.random()-0.5)*0.15
+y:Math.floor(Math.random()*size)
 };
 }
 }
@@ -207,7 +204,7 @@ bestEl.innerText=best;
 }
 }
 
-/* CONTROL SUAVE */
+/* CONTROL */
 let nextDir={x:1,y:0};
 
 function setDir(d){
@@ -228,28 +225,20 @@ function move(){
 let h={x:snake[0].x+dx,y:snake[0].y+dy};
 snake.unshift(h);
 
-/* 🍎 */
 if(h.x===food.x&&h.y===food.y){
 score++;
-eatSound.currentTime=0;
-eatSound.play().catch(()=>{});
 spawnFood();
 spawnRat();
 if(step>70) step-=1.2;
 }
-
-/* 🐀 */
 else if(rat&&h.x===rat.x&&h.y===rat.y){
 score+=3;
-ratSound.currentTime=0;
-ratSound.play().catch(()=>{});
 spawnRat();
 }
-
 else snake.pop();
 }
 
-/* COLLISION */
+/* CRASH */
 function crash(){
 let h=snake[0];
 return h.x<0||h.y<0||h.x>=size||h.y>=size||
@@ -282,7 +271,7 @@ acc-=step;
 draw();
 }
 
-/* DRAW REALISTA */
+/* DRAW REAL GRAPHICS */
 function draw(){
 
 ctx.fillStyle="#000";
@@ -291,71 +280,41 @@ ctx.fillRect(0,0,canvas.width,canvas.height);
 /* GRID */
 ctx.strokeStyle="rgba(255,255,255,0.05)";
 for(let i=0;i<canvas.width;i+=grid){
-ctx.beginPath();
-ctx.moveTo(i,0);
-ctx.lineTo(i,canvas.height);
-ctx.stroke();
-ctx.beginPath();
-ctx.moveTo(0,i);
-ctx.lineTo(canvas.width,i);
-ctx.stroke();
+ctx.beginPath();ctx.moveTo(i,0);ctx.lineTo(i,canvas.height);ctx.stroke();
+ctx.beginPath();ctx.moveTo(0,i);ctx.lineTo(canvas.width,i);ctx.stroke();
 }
 
-/* 🍎 */
-let pulse = 8 + Math.sin(Date.now()*0.005)*2;
-
-ctx.shadowBlur=25;
-ctx.shadowColor="#ff2d2d";
-ctx.fillStyle="#ff2d2d";
-ctx.beginPath();
-ctx.arc(
-food.x*grid+grid/2,
-food.y*grid+grid/2,
-pulse,
-0,Math.PI*2
+/* 🍎 APPLE */
+if(imgApple.complete){
+ctx.drawImage(
+imgApple,
+food.x*grid,
+food.y*grid,
+grid,
+grid
 );
-ctx.fill();
-
-/* 🐀 */
-if(rat){
-rat.x += rat.vx;
-rat.y += rat.vy;
-
-if(rat.x<0||rat.x>=size) rat.vx*=-1;
-if(rat.y<0||rat.y>=size) rat.vy*=-1;
-
-ctx.shadowBlur=15;
-ctx.shadowColor="#aaa";
-ctx.fillStyle="#bbb";
-ctx.beginPath();
-ctx.arc(
-rat.x*grid+grid/2,
-rat.y*grid+grid/2,
-6+Math.sin(Date.now()*0.01),
-0,Math.PI*2
-);
-ctx.fill();
 }
 
-/* 🐍 */
+/* 🐀 RAT */
+if(rat && imgRat.complete){
+ctx.drawImage(
+imgRat,
+rat.x*grid,
+rat.y*grid,
+grid,
+grid
+);
+}
+
+/* 🐍 SNAKE */
 snake.forEach((s,i)=>{
-
-let scale = i===0 ? 1 : 0.96;
-
-ctx.shadowBlur=12;
-ctx.shadowColor="#00ff88";
-
-ctx.fillStyle=i===0?"#00ff88":"#00cc66";
-
-ctx.beginPath();
-ctx.roundRect(
-s.x*grid + (1-scale)*2,
-s.y*grid + (1-scale)*2,
-grid*scale-2,
-grid*scale-2,
-5
+ctx.drawImage(
+imgSnake,
+s.x*grid,
+s.y*grid,
+grid,
+grid
 );
-ctx.fill();
 });
 
 update();
