@@ -23,9 +23,7 @@ body{
     overflow:hidden;
 }
 
-.container{
-    text-align:center;
-}
+.container{text-align:center;}
 
 h1{
     color:#00ff88;
@@ -60,10 +58,9 @@ button{
     cursor:pointer;
 }
 
-button:hover{
-    transform:scale(1.05);
-}
+button:hover{transform:scale(1.05);}
 
+/* START */
 #startScreen{
     position:fixed;
     inset:0;
@@ -75,6 +72,7 @@ button:hover{
     z-index:999;
 }
 
+/* GAME OVER */
 #gameOverScreen{
     position:fixed;
     inset:0;
@@ -92,6 +90,7 @@ button:hover{
     margin-bottom:20px;
 }
 
+/* CONTROLES MOVIL */
 .controls{
     display:none;
     margin-top:10px;
@@ -149,6 +148,11 @@ button:hover{
 
 <script>
 
+/* 🎵 MÚSICA */
+let music = new Audio("https://cdn.pixabay.com/audio/2022/10/16/audio_12b6b1d0f2.mp3");
+music.loop = true;
+music.volume = 0.3;
+
 const canvas=document.getElementById("game");
 const ctx=canvas.getContext("2d");
 
@@ -164,7 +168,7 @@ let snake,food,dx,dy,score,best,loop,speed;
 best=localStorage.getItem("snakeBest")||0;
 bestEl.innerText=best;
 
-/* 🔥 CANVAS RESPONSIVE */
+/* CANVAS RESPONSIVE */
 function resize(){
     let s=Math.min(window.innerWidth,window.innerHeight)*0.9;
     canvas.width=s;
@@ -176,8 +180,14 @@ window.addEventListener("resize",resize);
 
 /* START */
 function startGame(){
+
 document.getElementById("startScreen").style.display="none";
 gameOverScreen.style.display="none";
+
+/* 🎵 PLAY MUSIC */
+music.currentTime=0;
+music.play();
+
 reset();
 }
 
@@ -243,7 +253,7 @@ snake.pop();
 }
 }
 
-/* COLLISION IA LIMPIA */
+/* COLISION */
 function collision(){
 let h=snake[0];
 
@@ -260,6 +270,9 @@ move();
 
 if(collision()){
 clearInterval(loop);
+
+/* 🎵 STOP MUSIC */
+music.pause();
 
 gameOverScreen.style.display="flex";
 document.getElementById("finalScore").innerText="Score: "+score;
