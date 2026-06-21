@@ -1,162 +1,3 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Snake Neon Pro+ RATS</title>
-
-<style>
-*{margin:0;padding:0;box-sizing:border-box;}
-
-body{
-    background:radial-gradient(circle,#0f0f0f,#000);
-    color:white;
-    font-family:Arial;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    min-height:100vh;
-    overflow:hidden;
-}
-
-.container{text-align:center;}
-
-h1{
-    color:#00ff88;
-    text-shadow:0 0 20px #00ff88;
-}
-
-.stats{
-    display:flex;
-    justify-content:center;
-    gap:25px;
-    margin:10px;
-    font-size:20px;
-}
-
-canvas{
-    background:#000;
-    border:2px solid #00ff88;
-    border-radius:15px;
-    box-shadow:
-        0 0 25px rgba(0,255,136,0.4),
-        0 0 70px rgba(0,255,136,0.2);
-    width:90vmin;
-    height:90vmin;
-}
-
-button{
-    margin-top:10px;
-    padding:12px 25px;
-    border:none;
-    border-radius:10px;
-    background:#00ff88;
-    color:black;
-    font-weight:bold;
-    cursor:pointer;
-}
-
-button:hover{transform:scale(1.05);}
-
-#startScreen{
-    position:fixed;
-    inset:0;
-    background:black;
-    display:flex;
-    flex-direction:column;
-    justify-content:center;
-    align-items:center;
-    z-index:999;
-}
-
-#gameOverScreen{
-    position:fixed;
-    inset:0;
-    background:rgba(0,0,0,0.95);
-    display:none;
-    flex-direction:column;
-    justify-content:center;
-    align-items:center;
-    z-index:999;
-}
-
-#gameOverScreen h1{
-    color:red;
-    font-size:50px;
-    margin-bottom:20px;
-}
-
-/* CONTROLES */
-.controls{
-    margin-top:10px;
-    display:none;
-    justify-content:center;
-    align-items:center;
-    flex-direction:column;
-    gap:10px;
-}
-
-.controls .row{
-    display:flex;
-    gap:10px;
-}
-
-.controls button{
-    width:65px;
-    height:65px;
-    font-size:22px;
-    border-radius:12px;
-    background:#00ff88;
-    border:none;
-    color:black;
-    font-weight:bold;
-}
-
-@media (max-width:768px){
-    .controls{ display:flex; }
-}
-</style>
-</head>
-
-<body>
-
-<div id="startScreen">
-    <h1>🐍 SNAKE PRO+ RATS</h1>
-    <button onclick="startGame()">JUGAR</button>
-</div>
-
-<div id="gameOverScreen">
-    <h1>💀 GAME OVER</h1>
-    <div id="finalScore"></div>
-    <button onclick="startGame()">REINTENTAR</button>
-</div>
-
-<div class="container">
-
-<h1>Snake Neon Pro+</h1>
-
-<div class="stats">
-    <div>🏆 Score: <span id="score">0</span></div>
-    <div>⭐ Récord: <span id="best">0</span></div>
-</div>
-
-<canvas id="game"></canvas>
-
-<button onclick="startGame()">Reiniciar</button>
-
-<div class="controls">
-    <div class="row">
-        <button onclick="setDir('up')">⬆️</button>
-    </div>
-    <div class="row">
-        <button onclick="setDir('left')">⬅️</button>
-        <button onclick="setDir('down')">⬇️</button>
-        <button onclick="setDir('right')">➡️</button>
-    </div>
-</div>
-
-</div>
-
 <script>
 
 /* CANVAS */
@@ -177,9 +18,14 @@ let lastTime=0;
 let acc=0;
 let step=140;
 
-/* 🎵 SONIDOS */
-let eatSound = new Audio("https://cdn.pixabay.com/download/audio/2022/03/15/audio_c8a4d2f6b7.mp3?filename=apple-bite-crunch-1-6923.mp3");
-let ratSound = new Audio("https://cdn.pixabay.com/download/audio/2021/09/06/audio_5c8f6c9d2b.mp3?filename=coin-collect-retro-100632.mp3");
+/* 🔊 SONIDOS (AÑADIDO) */
+let eatSound = new Audio("https://cdn.pixabay.com/download/audio/2022/03/15/audio_c8a4d2f6b7.mp3");
+let gameOverSound = new Audio("https://cdn.pixabay.com/download/audio/2021/08/04/audio_1c2c7b7d3b.mp3");
+
+function playSound(s){
+    s.currentTime = 0;
+    s.play().catch(()=>{});
+}
 
 /* BEST */
 best=localStorage.getItem("snakeBest")||0;
@@ -240,7 +86,7 @@ bestEl.innerText=best;
 }
 }
 
-/* ====== 🔥 CONTROL FIX ====== */
+/* CONTROL */
 let nextDir = {x:1,y:0};
 
 function setDir(d){
@@ -271,16 +117,13 @@ snake.unshift(h);
 
 if(h.x===food.x&&h.y===food.y){
 score++;
-eatSound.currentTime=0;
-eatSound.play().catch(()=>{});
+playSound(eatSound);   // 🔊 SONIDO MORDISCO
 spawnFood();
 spawnRat();
 if(step>70) step-=1.2;
 }
 else if(rat&&h.x===rat.x&&h.y===rat.y){
 score+=3;
-ratSound.currentTime=0;
-ratSound.play().catch(()=>{});
 spawnRat();
 }
 else snake.pop();
@@ -304,10 +147,11 @@ lastTime=time;
 
 while(acc>=step){
 
-applyDir();   // 🔥 FIX IMPORTANTE
+applyDir();
 move();
 
 if(crash()){
+playSound(gameOverSound); // 💥 SONIDO GAME OVER
 finalScore.innerText="Score: "+score;
 gameOverScreen.style.display="flex";
 return;
@@ -362,6 +206,3 @@ update();
 }
 
 </script>
-
-</body>
-</html>
