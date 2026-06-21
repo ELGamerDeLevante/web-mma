@@ -86,34 +86,13 @@ button:hover{transform:scale(1.05);}
     margin-bottom:20px;
 }
 
-/* CONTROLES */
 .controls{
     margin-top:10px;
     display:none;
-    justify-content:center;
-    align-items:center;
-    flex-direction:column;
-    gap:10px;
-}
-
-.controls .row{
-    display:flex;
-    gap:10px;
-}
-
-.controls button{
-    width:65px;
-    height:65px;
-    font-size:22px;
-    border-radius:12px;
-    background:#00ff88;
-    border:none;
-    color:black;
-    font-weight:bold;
 }
 
 @media (max-width:768px){
-    .controls{ display:flex; }
+    .controls{ display:block; }
 }
 </style>
 </head>
@@ -145,21 +124,45 @@ button:hover{transform:scale(1.05);}
 <button onclick="startGame()">Reiniciar</button>
 
 <div class="controls">
-    <div class="row">
-        <button onclick="setDir('up')">⬆️</button>
-    </div>
-    <div class="row">
-        <button onclick="setDir('left')">⬅️</button>
-        <button onclick="setDir('down')">⬇️</button>
-        <button onclick="setDir('right')">➡️</button>
-    </div>
+    <button onclick="setDir('up')">⬆️</button>
+    <button onclick="setDir('left')">⬅️</button>
+    <button onclick="setDir('down')">⬇️</button>
+    <button onclick="setDir('right')">➡️</button>
 </div>
 
 </div>
 
 <script>
 
-/* CANVAS */
+/* ================= AUDIO FIX ================= */
+let audioUnlocked = false;
+
+function unlockAudio(){
+    if(audioUnlocked) return;
+    audioUnlocked = true;
+    bgMusic.play().catch(()=>{});
+}
+
+document.addEventListener("click", unlockAudio);
+document.addEventListener("keydown", unlockAudio);
+document.addEventListener("touchstart", unlockAudio);
+
+/* 🎶 MUSICA */
+let bgMusic = new Audio("https://cdn.pixabay.com/download/audio/2022/10/25/audio_3a1d5c7b6c.mp3");
+bgMusic.loop = true;
+bgMusic.volume = 0.4;
+
+/* 🔊 SONIDOS */
+let eatSound = new Audio("https://cdn.pixabay.com/download/audio/2022/03/15/audio_c8a4d2f6b7.mp3?filename=apple-bite-crunch-1-6923.mp3");
+let ratSound = new Audio("https://cdn.pixabay.com/download/audio/2021/09/06/audio_5c8f6c9d2b.mp3?filename=coin-collect-retro-100632.mp3");
+
+function playSound(sound){
+    if(!audioUnlocked) return;
+    sound.currentTime = 0;
+    sound.play().catch(()=>{});
+}
+
+/* ================= GAME ================= */
 const canvas=document.getElementById("game");
 const ctx=canvas.getContext("2d");
 
@@ -171,35 +174,14 @@ const finalScore=document.getElementById("finalScore");
 let grid=20;
 let size=25;
 
-/* STATE */
 let snake,food,rat,dx,dy,score,best;
 let lastTime=0;
 let acc=0;
 let step=140;
-/* 🎵 SONIDOS (TE FALTABAN ESTOS) */
-let eatSound = new Audio("https://cdn.pixabay.com/download/audio/2022/03/15/audio_c8a4d2f6b7.mp3?filename=apple-bite-crunch-1-6923.mp3");
-let ratSound = new Audio("https://cdn.pixabay.com/download/audio/2021/09/06/audio_5c8f6c9d2b.mp3?filename=coin-collect-retro-100632.mp3");
 
-let audioUnlocked = false;
+best=localStorage.getItem("snakeBest")||0;
+bestEl.innerText=best;
 
-/* desbloqueo real de audio */
-function unlockAudio(){
-    if(audioUnlocked) return;
-    audioUnlocked = true;
-}
-
-document.addEventListener("click", unlockAudio);
-document.addEventListener("keydown", unlockAudio);
-document.addEventListener("touchstart", unlockAudio);
-
-/* función segura */
-function playSound(sound){
-    if(audioUnlocked){
-        sound.currentTime = 0;
-        sound.play().catch(()=>{});
-    }
-}
-/* RESIZE */
 function resize(){
 let s=Math.min(innerWidth,innerHeight)*0.9;
 canvas.width=s;
@@ -215,27 +197,25 @@ document.getElementById("startScreen").style.display="none";
 gameOverScreen.style.display="none";
 reset();
 requestAnimationFrame(loop);
-bgMusic.play().catch(()=>{});}
+bgMusic.play().catch(()=>{});
+}
 
 /* RESET */
 function reset(){
 snake=[{x:10,y:10}];
-dx=1; dy=0;
+dx=1;dy=0;
 score=0;
 step=140;
-
 spawnFood();
 spawnRat();
-
 update();
 }
 
-/* FOOD */
+/* SPAWN */
 function spawnFood(){
 food={x:Math.floor(Math.random()*size),y:Math.floor(Math.random()*size)};
 }
 
-/* RAT */
 function spawnRat(){
 rat=null;
 if(Math.random()<0.35){
@@ -246,7 +226,6 @@ rat={x:Math.floor(Math.random()*size),y:Math.floor(Math.random()*size)};
 /* SCORE */
 function update(){
 scoreEl.innerText=score;
-
 if(score>best){
 best=score;
 localStorage.setItem("snakeBest",best);
@@ -254,8 +233,8 @@ bestEl.innerText=best;
 }
 }
 
-/* ====== 🔥 CONTROL FIX ====== */
-let nextDir = {x:1,y:0};
+/* CONTROL */
+let nextDir={x:1,y:0};
 
 function setDir(d){
 if(d==="up" && dy===0) nextDir={x:0,y:-1};
@@ -265,36 +244,25 @@ if(d==="right" && dx===0) nextDir={x:1,y:0};
 }
 
 function applyDir(){
-dx = nextDir.x;
-dy = nextDir.y;
+dx=nextDir.x;
+dy=nextDir.y;
 }
-
-/* KEYBOARD */
-addEventListener("keydown",e=>{
-if(e.key==="ArrowUp")setDir("up");
-if(e.key==="ArrowDown")setDir("down");
-if(e.key==="ArrowLeft")setDir("left");
-if(e.key==="ArrowRight")setDir("right");
-});
 
 /* MOVE */
 function move(){
-
 let h={x:snake[0].x+dx,y:snake[0].y+dy};
 snake.unshift(h);
 
 if(h.x===food.x&&h.y===food.y){
 score++;
-eatSound.currentTime=0;
-eatSound.play().catch(()=>{});
+playSound(eatSound);
 spawnFood();
 spawnRat();
 if(step>70) step-=1.2;
 }
 else if(rat&&h.x===rat.x&&h.y===rat.y){
 score+=3;
-ratSound.currentTime=0;
-ratSound.play().catch(()=>{});
+playSound(ratSound);
 spawnRat();
 }
 else snake.pop();
@@ -310,15 +278,13 @@ snake.slice(1).some(s=>s.x===h.x&&s.y===h.y);
 /* LOOP */
 function loop(time){
 requestAnimationFrame(loop);
-
 if(!lastTime) lastTime=time;
 
 acc+=time-lastTime;
 lastTime=time;
 
 while(acc>=step){
-
-applyDir();   // 🔥 FIX IMPORTANTE
+applyDir();
 move();
 
 if(crash()){
@@ -335,41 +301,32 @@ draw();
 
 /* DRAW */
 function draw(){
-
 ctx.fillStyle="#000";
 ctx.fillRect(0,0,canvas.width,canvas.height);
 
-ctx.strokeStyle="rgba(255,255,255,0.06)";
 for(let i=0;i<canvas.width;i+=grid){
-ctx.beginPath(); ctx.moveTo(i,0); ctx.lineTo(i,canvas.height); ctx.stroke();
-ctx.beginPath(); ctx.moveTo(0,i); ctx.lineTo(canvas.width,i); ctx.stroke();
+ctx.strokeStyle="rgba(255,255,255,0.06)";
+ctx.beginPath();ctx.moveTo(i,0);ctx.lineTo(i,canvas.height);ctx.stroke();
+ctx.beginPath();ctx.moveTo(0,i);ctx.lineTo(canvas.width,i);ctx.stroke();
 }
 
 let pulse=Math.sin(Date.now()/120)*2;
 
-ctx.shadowBlur=20;
-ctx.shadowColor="red";
 ctx.fillStyle="red";
 ctx.beginPath();
 ctx.arc(food.x*grid+grid/2,food.y*grid+grid/2,8+pulse,0,Math.PI*2);
 ctx.fill();
 
 if(rat){
-ctx.shadowBlur=10;
-ctx.shadowColor="#aaa";
-ctx.fillStyle="#bbb";
+ctx.fillStyle="#aaa";
 ctx.beginPath();
 ctx.arc(rat.x*grid+grid/2,rat.y*grid+grid/2,6+pulse,0,Math.PI*2);
 ctx.fill();
 }
 
 snake.forEach((s,i)=>{
-ctx.shadowBlur=12;
-ctx.shadowColor="#00ff88";
 ctx.fillStyle=i===0?"#00ff88":"#00cc66";
-ctx.beginPath();
-ctx.roundRect(s.x*grid,s.y*grid,grid-2,grid-2,5);
-ctx.fill();
+ctx.fillRect(s.x*grid,s.y*grid,grid-2,grid-2);
 });
 
 update();
