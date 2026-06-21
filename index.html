@@ -176,7 +176,29 @@ let snake,food,rat,dx,dy,score,best;
 let lastTime=0;
 let acc=0;
 let step=140;
+/* 🎵 SONIDOS (TE FALTABAN ESTOS) */
+let eatSound = new Audio("https://cdn.pixabay.com/download/audio/2022/03/15/audio_c8a4d2f6b7.mp3?filename=apple-bite-crunch-1-6923.mp3");
+let ratSound = new Audio("https://cdn.pixabay.com/download/audio/2021/09/06/audio_5c8f6c9d2b.mp3?filename=coin-collect-retro-100632.mp3");
 
+let audioUnlocked = false;
+
+/* desbloqueo real de audio */
+function unlockAudio(){
+    if(audioUnlocked) return;
+    audioUnlocked = true;
+}
+
+document.addEventListener("click", unlockAudio);
+document.addEventListener("keydown", unlockAudio);
+document.addEventListener("touchstart", unlockAudio);
+
+/* función segura */
+function playSound(sound){
+    if(audioUnlocked){
+        sound.currentTime = 0;
+        sound.play().catch(()=>{});
+    }
+}
 /* RESIZE */
 function resize(){
 let s=Math.min(innerWidth,innerHeight)*0.9;
