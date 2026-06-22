@@ -123,7 +123,7 @@ button.main-btn:hover{transform:scale(1.05);}
 
 <!-- Pantalla inicio -->
 <div id="startScreen">
-    <h1>🐍 SNAKE PRO RATS</h1>
+    <h1>🐍 SNAKE PRO RATS 🐀</h1>
     <button class="main-btn" onclick="startGame()">JUGAR</button>
     <button class="main-btn" style="background:#1a1a2e;color:#00ff88;border:1px solid #00ff88;" onclick="showRanking()">🏆 RANKING</button>
 </div>
@@ -218,14 +218,23 @@ function closeRanking(){
 let pendingScore = 0;
 
 async function checkAndPromptScore(){
-    const top = await isTopScore(score);
-    if(top && score > 0){
-        pendingScore = score;
-        document.getElementById("nameInput").value = "";
-        document.getElementById("nameScreen").style.display = "flex";
-    } else {
-        document.getElementById("gameOverScreen").style.display = "flex";
+    if(score > 0){
+        try {
+            const top = await isTopScore(score);
+            if(top){
+                pendingScore = score;
+                document.getElementById("nameInput").value = "";
+                document.getElementById("nameScreen").style.display = "flex";
+                return;
+            }
+        } catch(e) {
+            pendingScore = score;
+            document.getElementById("nameInput").value = "";
+            document.getElementById("nameScreen").style.display = "flex";
+            return;
+        }
     }
+    document.getElementById("gameOverScreen").style.display = "flex";
 }
 async function submitScore(){
     const nombre = document.getElementById("nameInput").value.trim();
