@@ -4,10 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Snake Neon Pro+ RATS</title>
-
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
-
 body{
     background:radial-gradient(circle,#0f0f0f,#000);
     color:white;
@@ -18,22 +16,25 @@ body{
     min-height:100vh;
     overflow:hidden;
 }
-
 .container{text-align:center;}
-
-h1{
-    color:#00ff88;
-    text-shadow:0 0 20px #00ff88;
-}
-
+h1{color:#00ff88;text-shadow:0 0 20px #00ff88;}
 .stats{
     display:flex;
     justify-content:center;
     gap:25px;
     margin:10px;
     font-size:20px;
+    align-items:center;
 }
-
+#musicToggle{
+    cursor:pointer;
+    font-size:22px;
+    user-select:none;
+    background:none;
+    border:none;
+    color:white;
+    padding:0;
+}
 canvas{
     background:#000;
     border:2px solid #00ff88;
@@ -44,8 +45,7 @@ canvas{
     width:90vmin;
     height:90vmin;
 }
-
-button{
+button.main-btn{
     margin-top:10px;
     padding:12px 25px;
     border:none;
@@ -54,10 +54,9 @@ button{
     color:black;
     font-weight:bold;
     cursor:pointer;
+    font-size:16px;
 }
-
-button:hover{transform:scale(1.05);}
-
+button.main-btn:hover{transform:scale(1.05);}
 #startScreen{
     position:fixed;
     inset:0;
@@ -67,8 +66,10 @@ button:hover{transform:scale(1.05);}
     justify-content:center;
     align-items:center;
     z-index:999;
+    gap:16px;
 }
-
+#startScreen h1{font-size:40px;}
+#startScreen p{color:#888;font-size:14px;}
 #gameOverScreen{
     position:fixed;
     inset:0;
@@ -78,15 +79,9 @@ button:hover{transform:scale(1.05);}
     justify-content:center;
     align-items:center;
     z-index:999;
+    gap:16px;
 }
-
-#gameOverScreen h1{
-    color:red;
-    font-size:50px;
-    margin-bottom:20px;
-}
-
-/* CONTROLES */
+#gameOverScreen h1{color:red;font-size:50px;}
 .controls{
     margin-top:10px;
     display:none;
@@ -95,273 +90,373 @@ button:hover{transform:scale(1.05);}
     flex-direction:column;
     gap:10px;
 }
-
-.controls .row{
-    display:flex;
-    gap:10px;
-}
-
+.controls .row{display:flex;gap:10px;}
 .controls button{
-    width:65px;
-    height:65px;
-    font-size:22px;
-    border-radius:12px;
-    background:#00ff88;
-    border:none;
-    color:black;
-    font-weight:bold;
+    width:65px;height:65px;font-size:22px;
+    border-radius:12px;background:#00ff88;
+    border:none;color:black;font-weight:bold;cursor:pointer;
 }
-
-@media (max-width:768px){
-    .controls{ display:flex; }
-}
+@media(max-width:768px){.controls{display:flex;}}
 </style>
 </head>
-
 <body>
 
 <div id="startScreen">
     <h1>🐍 SNAKE PRO+ RATS</h1>
-    <button onclick="startGame()">JUGAR</button>
+    <p>Con música y efectos de sonido</p>
+    <button class="main-btn" onclick="startGame()">JUGAR</button>
 </div>
 
 <div id="gameOverScreen">
     <h1>💀 GAME OVER</h1>
-    <div id="finalScore"></div>
-    <button onclick="startGame()">REINTENTAR</button>
+    <div id="finalScore" style="font-size:22px;"></div>
+    <button class="main-btn" onclick="startGame()">REINTENTAR</button>
 </div>
 
 <div class="container">
-
-<h1>Snake Neon Pro+</h1>
-
-<div class="stats">
-    <div>🏆 Score: <span id="score">0</span></div>
-    <div>⭐ Récord: <span id="best">0</span></div>
-</div>
-
-<canvas id="game"></canvas>
-
-<button onclick="startGame()">Reiniciar</button>
-
-<div class="controls">
-    <div class="row">
-        <button onclick="setDir('up')">⬆️</button>
+    <h1>Snake Neon Pro+</h1>
+    <div class="stats">
+        <div>🏆 Score: <span id="score">0</span></div>
+        <div>⭐ Récord: <span id="best">0</span></div>
+        <button id="musicToggle" onclick="toggleMusic()" title="Silenciar / Activar música">🔊</button>
     </div>
-    <div class="row">
-        <button onclick="setDir('left')">⬅️</button>
-        <button onclick="setDir('down')">⬇️</button>
-        <button onclick="setDir('right')">➡️</button>
+    <canvas id="game"></canvas>
+    <br>
+    <button class="main-btn" onclick="startGame()">Reiniciar</button>
+    <div class="controls">
+        <div class="row"><button onclick="setDir('up')">⬆️</button></div>
+        <div class="row">
+            <button onclick="setDir('left')">⬅️</button>
+            <button onclick="setDir('down')">⬇️</button>
+            <button onclick="setDir('right')">➡️</button>
+        </div>
     </div>
-</div>
-
 </div>
 
 <script>
+/* ===== CANVAS ===== */
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
+const scoreEl = document.getElementById("score");
+const bestEl = document.getElementById("best");
+const gameOverScreen = document.getElementById("gameOverScreen");
+const finalScoreEl = document.getElementById("finalScore");
 
-/* CANVAS */
-const canvas=document.getElementById("game");
-const ctx=canvas.getContext("2d");
+const GRID_CELLS = 20;
+let gridSize;
 
-const scoreEl=document.getElementById("score");
-const bestEl=document.getElementById("best");
-const gameOverScreen=document.getElementById("gameOverScreen");
-const finalScore=document.getElementById("finalScore");
-
-let grid=20;
-let size=25;
-
-/* STATE */
-let snake,food,rat,dx,dy,score,best;
-let lastTime=0;
-let acc=0;
-let step=140;
-
-/* 🎵 SONIDOS */
-let eatSound = new Audio("https://cdn.pixabay.com/download/audio/2022/03/15/audio_c8a4d2f6b7.mp3?filename=apple-bite-crunch-1-6923.mp3");
-let ratSound = new Audio("https://cdn.pixabay.com/download/audio/2021/09/06/audio_5c8f6c9d2b.mp3?filename=coin-collect-retro-100632.mp3");
-
-/* BEST */
-best=localStorage.getItem("snakeBest")||0;
-bestEl.innerText=best;
-
-/* RESIZE */
 function resize(){
-let s=Math.min(innerWidth,innerHeight)*0.9;
-canvas.width=s;
-canvas.height=s;
-grid=canvas.width/size;
+    let s = Math.min(window.innerWidth, window.innerHeight) * 0.9;
+    canvas.width = s;
+    canvas.height = s;
+    gridSize = s / GRID_CELLS;
 }
 resize();
-addEventListener("resize",resize);
+window.addEventListener("resize", resize);
 
-/* START */
-function startGame(){
-document.getElementById("startScreen").style.display="none";
-gameOverScreen.style.display="none";
-reset();
-requestAnimationFrame(loop);
+/* ===== STATE ===== */
+let snake, food, rat, dx, dy, nextDir;
+let score, best, step, acc, lastTime, running;
+
+best = parseInt(localStorage.getItem("snakeBestPro") || "0");
+bestEl.innerText = best;
+running = false;
+
+/* ===== WEB AUDIO ENGINE ===== */
+const AC = new (window.AudioContext || window.webkitAudioContext)();
+let musicMuted = false;
+let masterGainNode = null;
+let musicRunning = false;
+
+function toggleMusic(){
+    musicMuted = !musicMuted;
+    document.getElementById("musicToggle").textContent = musicMuted ? "🔇" : "🔊";
+    if(masterGainNode) masterGainNode.gain.value = musicMuted ? 0 : 0.08;
 }
 
-/* RESET */
-function reset(){
-snake=[{x:10,y:10}];
-dx=1; dy=0;
-score=0;
-step=140;
+/* --- Música de fondo: bajo + arpegio sintetizados --- */
+function startMusic(){
+    stopMusic();
+    musicRunning = true;
 
-spawnFood();
-spawnRat();
+    masterGainNode = AC.createGain();
+    masterGainNode.gain.value = musicMuted ? 0 : 0.08;
+    masterGainNode.connect(AC.destination);
 
-update();
+    const bassNotes = [55, 55, 65.41, 55];
+    const arpNotes  = [220, 261.63, 329.63, 392, 329.63, 261.63, 220, 196];
+    const beat = 60 / 128; // 128 BPM
+
+    function scheduleBass(t, idx){
+        if(!musicRunning) return;
+        const osc = AC.createOscillator();
+        const g   = AC.createGain();
+        osc.type = "sawtooth";
+        osc.frequency.value = bassNotes[idx % bassNotes.length];
+        g.gain.setValueAtTime(0.9, t);
+        g.gain.exponentialRampToValueAtTime(0.01, t + beat * 1.8);
+        osc.connect(g);
+        g.connect(masterGainNode);
+        osc.start(t);
+        osc.stop(t + beat * 2);
+        const delay = Math.max(0, (t - AC.currentTime + beat * 2) * 1000 - 60);
+        setTimeout(() => scheduleBass(t + beat * 2, idx + 1), delay);
+    }
+
+    function scheduleArp(t, idx){
+        if(!musicRunning) return;
+        const osc = AC.createOscillator();
+        const g   = AC.createGain();
+        osc.type = "square";
+        osc.frequency.value = arpNotes[idx % arpNotes.length];
+        g.gain.setValueAtTime(0.5, t);
+        g.gain.exponentialRampToValueAtTime(0.01, t + beat * 0.45);
+        osc.connect(g);
+        g.connect(masterGainNode);
+        osc.start(t);
+        osc.stop(t + beat * 0.5);
+        const delay = Math.max(0, (t - AC.currentTime + beat * 0.5) * 1000 - 60);
+        setTimeout(() => scheduleArp(t + beat * 0.5, idx + 1), delay);
+    }
+
+    const now = AC.currentTime + 0.1;
+    scheduleBass(now, 0);
+    scheduleArp(now, 0);
 }
 
-/* FOOD */
+function stopMusic(){
+    musicRunning = false;
+    masterGainNode = null;
+}
+
+/* --- Sonido mordisco (comer comida roja) --- */
+function playEat(){
+    const t = AC.currentTime;
+    [440, 520, 660].forEach((freq, i) => {
+        const osc = AC.createOscillator();
+        const g   = AC.createGain();
+        osc.type = "sine";
+        osc.frequency.value = freq;
+        const st = t + i * 0.04;
+        g.gain.setValueAtTime(0.4, st);
+        g.gain.exponentialRampToValueAtTime(0.001, st + 0.12);
+        osc.connect(g);
+        g.connect(AC.destination);
+        osc.start(st);
+        osc.stop(st + 0.13);
+    });
+}
+
+/* --- Sonido rata (+3 puntos) --- */
+function playRat(){
+    const t = AC.currentTime;
+    [300, 450, 600, 750].forEach((freq, i) => {
+        const osc = AC.createOscillator();
+        const g   = AC.createGain();
+        osc.type = "triangle";
+        osc.frequency.value = freq;
+        const st = t + i * 0.05;
+        g.gain.setValueAtTime(0.5, st);
+        g.gain.exponentialRampToValueAtTime(0.001, st + 0.1);
+        osc.connect(g);
+        g.connect(AC.destination);
+        osc.start(st);
+        osc.stop(st + 0.12);
+    });
+}
+
+/* --- Sonido impacto / Game Over --- */
+function playImpact(){
+    const t = AC.currentTime;
+
+    /* Ruido grave filtrado */
+    const buf    = AC.createBuffer(1, AC.sampleRate * 0.6, AC.sampleRate);
+    const data   = buf.getChannelData(0);
+    for(let i = 0; i < data.length; i++){
+        data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (AC.sampleRate * 0.15));
+    }
+    const src    = AC.createBufferSource();
+    const filter = AC.createBiquadFilter();
+    const gNoise = AC.createGain();
+    filter.type = "lowpass";
+    filter.frequency.value = 400;
+    src.buffer = buf;
+    src.connect(filter);
+    filter.connect(gNoise);
+    gNoise.connect(AC.destination);
+    gNoise.gain.setValueAtTime(1.2, t);
+    gNoise.gain.exponentialRampToValueAtTime(0.001, t + 0.55);
+    src.start(t);
+    src.stop(t + 0.6);
+
+    /* Graves descendentes */
+    [100, 80, 60].forEach((freq, i) => {
+        const osc = AC.createOscillator();
+        const g   = AC.createGain();
+        osc.type = "sine";
+        osc.frequency.value = freq;
+        const st = t + i * 0.05;
+        g.gain.setValueAtTime(0.6, st);
+        g.gain.exponentialRampToValueAtTime(0.001, st + 0.5);
+        osc.connect(g);
+        g.connect(AC.destination);
+        osc.start(st);
+        osc.stop(t + 0.65);
+    });
+}
+
+/* ===== LÓGICA DEL JUEGO ===== */
 function spawnFood(){
-food={x:Math.floor(Math.random()*size),y:Math.floor(Math.random()*size)};
+    food = {
+        x: Math.floor(Math.random() * GRID_CELLS),
+        y: Math.floor(Math.random() * GRID_CELLS)
+    };
 }
 
-/* RAT */
 function spawnRat(){
-rat=null;
-if(Math.random()<0.35){
-rat={x:Math.floor(Math.random()*size),y:Math.floor(Math.random()*size)};
-}
-}
-
-/* SCORE */
-function update(){
-scoreEl.innerText=score;
-
-if(score>best){
-best=score;
-localStorage.setItem("snakeBest",best);
-bestEl.innerText=best;
-}
+    rat = Math.random() < 0.35
+        ? {x: Math.floor(Math.random() * GRID_CELLS), y: Math.floor(Math.random() * GRID_CELLS)}
+        : null;
 }
 
-/* ====== 🔥 CONTROL FIX ====== */
-let nextDir = {x:1,y:0};
+function updateScore(){
+    scoreEl.innerText = score;
+    if(score > best){
+        best = score;
+        localStorage.setItem("snakeBestPro", best);
+        bestEl.innerText = best;
+    }
+}
+
+function startGame(){
+    if(AC.state === "suspended") AC.resume();
+    document.getElementById("startScreen").style.display = "none";
+    gameOverScreen.style.display = "none";
+
+    snake   = [{x: 10, y: 10}];
+    dx      = 1; dy = 0;
+    nextDir = {x: 1, y: 0};
+    score   = 0;
+    step    = 140;
+    acc     = 0;
+    lastTime = 0;
+    running = true;
+
+    spawnFood();
+    spawnRat();
+    updateScore();
+    startMusic();
+    requestAnimationFrame(loop);
+}
 
 function setDir(d){
-if(d==="up" && dy===0) nextDir={x:0,y:-1};
-if(d==="down" && dy===0) nextDir={x:0,y:1};
-if(d==="left" && dx===0) nextDir={x:-1,y:0};
-if(d==="right" && dx===0) nextDir={x:1,y:0};
+    if(d === "up"    && dy === 0) nextDir = {x: 0,  y: -1};
+    if(d === "down"  && dy === 0) nextDir = {x: 0,  y:  1};
+    if(d === "left"  && dx === 0) nextDir = {x: -1, y:  0};
+    if(d === "right" && dx === 0) nextDir = {x:  1, y:  0};
 }
 
-function applyDir(){
-dx = nextDir.x;
-dy = nextDir.y;
-}
-
-/* KEYBOARD */
-addEventListener("keydown",e=>{
-if(e.key==="ArrowUp")setDir("up");
-if(e.key==="ArrowDown")setDir("down");
-if(e.key==="ArrowLeft")setDir("left");
-if(e.key==="ArrowRight")setDir("right");
+document.addEventListener("keydown", e => {
+    if(e.key === "ArrowUp")    { e.preventDefault(); setDir("up"); }
+    if(e.key === "ArrowDown")  { e.preventDefault(); setDir("down"); }
+    if(e.key === "ArrowLeft")  { e.preventDefault(); setDir("left"); }
+    if(e.key === "ArrowRight") { e.preventDefault(); setDir("right"); }
 });
 
-/* MOVE */
 function move(){
+    dx = nextDir.x;
+    dy = nextDir.y;
+    const head = {x: snake[0].x + dx, y: snake[0].y + dy};
+    snake.unshift(head);
 
-let h={x:snake[0].x+dx,y:snake[0].y+dy};
-snake.unshift(h);
-
-if(h.x===food.x&&h.y===food.y){
-score++;
-eatSound.currentTime=0;
-eatSound.play().catch(()=>{});
-spawnFood();
-spawnRat();
-if(step>70) step-=1.2;
-}
-else if(rat&&h.x===rat.x&&h.y===rat.y){
-score+=3;
-ratSound.currentTime=0;
-ratSound.play().catch(()=>{});
-spawnRat();
-}
-else snake.pop();
+    if(head.x === food.x && head.y === food.y){
+        score++;
+        playEat();
+        spawnFood();
+        spawnRat();
+        if(step > 70) step -= 1.2;
+    } else if(rat && head.x === rat.x && head.y === rat.y){
+        score += 3;
+        playRat();
+        spawnRat();
+    } else {
+        snake.pop();
+    }
 }
 
-/* CRASH */
 function crash(){
-let h=snake[0];
-return h.x<0||h.y<0||h.x>=size||h.y>=size||
-snake.slice(1).some(s=>s.x===h.x&&s.y===h.y);
+    const h = snake[0];
+    return h.x < 0 || h.y < 0 || h.x >= GRID_CELLS || h.y >= GRID_CELLS ||
+           snake.slice(1).some(s => s.x === h.x && s.y === h.y);
 }
 
-/* LOOP */
 function loop(time){
-requestAnimationFrame(loop);
+    if(!running) return;
+    requestAnimationFrame(loop);
 
-if(!lastTime) lastTime=time;
+    if(!lastTime) lastTime = time;
+    acc += time - lastTime;
+    lastTime = time;
 
-acc+=time-lastTime;
-lastTime=time;
+    while(acc >= step){
+        move();
+        if(crash()){
+            running = false;
+            stopMusic();
+            playImpact();
+            finalScoreEl.innerText = "Score: " + score;
+            gameOverScreen.style.display = "flex";
+            return;
+        }
+        acc -= step;
+    }
 
-while(acc>=step){
-
-applyDir();   // 🔥 FIX IMPORTANTE
-move();
-
-if(crash()){
-finalScore.innerText="Score: "+score;
-gameOverScreen.style.display="flex";
-return;
+    draw();
 }
 
-acc-=step;
-}
-
-draw();
-}
-
-/* DRAW */
+/* ===== DIBUJO ===== */
 function draw(){
+    ctx.fillStyle = "#000";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-ctx.fillStyle="#000";
-ctx.fillRect(0,0,canvas.width,canvas.height);
+    /* Grid */
+    ctx.strokeStyle = "rgba(255,255,255,0.05)";
+    for(let i = 0; i < canvas.width; i += gridSize){
+        ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, canvas.height); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(canvas.width, i); ctx.stroke();
+    }
 
-ctx.strokeStyle="rgba(255,255,255,0.06)";
-for(let i=0;i<canvas.width;i+=grid){
-ctx.beginPath(); ctx.moveTo(i,0); ctx.lineTo(i,canvas.height); ctx.stroke();
-ctx.beginPath(); ctx.moveTo(0,i); ctx.lineTo(canvas.width,i); ctx.stroke();
+    const pulse = Math.sin(Date.now() / 120) * 2;
+
+    /* Comida */
+    ctx.shadowBlur = 20; ctx.shadowColor = "red"; ctx.fillStyle = "red";
+    ctx.beginPath();
+    ctx.arc(food.x * gridSize + gridSize / 2, food.y * gridSize + gridSize / 2, 8 + pulse, 0, Math.PI * 2);
+    ctx.fill();
+
+    /* Rata */
+    if(rat){
+        ctx.shadowBlur = 10; ctx.shadowColor = "#aaa"; ctx.fillStyle = "#bbb";
+        ctx.beginPath();
+        ctx.arc(rat.x * gridSize + gridSize / 2, rat.y * gridSize + gridSize / 2, 6 + pulse, 0, Math.PI * 2);
+        ctx.fill();
+    }
+
+    /* Serpiente */
+    snake.forEach((s, i) => {
+        ctx.shadowBlur = 12; ctx.shadowColor = "#00ff88";
+        ctx.fillStyle = i === 0 ? "#00ff88" : "#00cc66";
+        ctx.beginPath();
+        if(ctx.roundRect){
+            ctx.roundRect(s.x * gridSize, s.y * gridSize, gridSize - 2, gridSize - 2, 5);
+        } else {
+            ctx.rect(s.x * gridSize, s.y * gridSize, gridSize - 2, gridSize - 2);
+        }
+        ctx.fill();
+    });
+
+    updateScore();
 }
-
-let pulse=Math.sin(Date.now()/120)*2;
-
-ctx.shadowBlur=20;
-ctx.shadowColor="red";
-ctx.fillStyle="red";
-ctx.beginPath();
-ctx.arc(food.x*grid+grid/2,food.y*grid+grid/2,8+pulse,0,Math.PI*2);
-ctx.fill();
-
-if(rat){
-ctx.shadowBlur=10;
-ctx.shadowColor="#aaa";
-ctx.fillStyle="#bbb";
-ctx.beginPath();
-ctx.arc(rat.x*grid+grid/2,rat.y*grid+grid/2,6+pulse,0,Math.PI*2);
-ctx.fill();
-}
-
-snake.forEach((s,i)=>{
-ctx.shadowBlur=12;
-ctx.shadowColor="#00ff88";
-ctx.fillStyle=i===0?"#00ff88":"#00cc66";
-ctx.beginPath();
-ctx.roundRect(s.x*grid,s.y*grid,grid-2,grid-2,5);
-ctx.fill();
-});
-
-update();
-}
-
 </script>
-
 </body>
 </html>
