@@ -26,6 +26,11 @@ button.dark-btn:hover{background:rgba(0,255,136,0.15);}
 #startScreen .start-title h1{font-size:clamp(30px,9vw,54px);}
 #startScreen .start-title p{color:#0f8;font-size:13px;letter-spacing:2px;opacity:0.7;}
 
+@media (max-width:768px){
+  #startScreen{background-position:center center;background-size:cover;justify-content:center;align-items:center;padding:24px 16px;}
+  #startScreen > *{position:relative;z-index:1;}
+}
+
 /* PANTALLA GAME OVER */
 #gameOverScreen{position:fixed;inset:0;background:rgba(0,0,0,0.95);display:none;flex-direction:column;justify-content:center;align-items:center;z-index:1000;gap:10px;padding:20px;}
 #gameOverScreen h1{color:red;font-size:clamp(28px,8vw,50px);}
